@@ -6,7 +6,7 @@ const SPECIAL_RANKS = ["ace", "jack", "queen", "king", "joker"];
 
 const CARD_TYPES = {
   NUMBER: "number",
-  SPECIAL: "special"
+  SPECIAL: "special",
 };
 
 export { RANKS, SUITS, SPECIAL_RANKS, CARD_TYPES };

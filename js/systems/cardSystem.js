@@ -1,5 +1,6 @@
 import { RANKS, SUITS, SPECIAL_RANKS, CARD_TYPES } from "../data/cardData.js";
 
+// Card Object Constructor //
 class Card {
   constructor(id, suit, rank, type, baseValue, siegeValue) {
     this.id = id;
@@ -11,6 +12,7 @@ class Card {
   }
 }
 
+// Create Card Function //
 export function createCard(suit, rank, jokerIndex = null) {
   const isNumberRank = RANKS.includes(rank);
   const isSpecialRank = SPECIAL_RANKS.includes(rank);

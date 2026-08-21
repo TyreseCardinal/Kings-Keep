@@ -83,3 +83,24 @@ export function dealTowerCards(towerCreationDeck){
     playerBTower
   };
 }
+
+// Deal 1 King each to both Player's Towers //
+export function dealStartingKings(specialReserve) {
+  
+  // Find the first card with the rank of King in specialReserve deck
+  const firstKingIndex = specialReserve.findIndex(card => card.rank === "king");
+  const firstRemovedKing = specialReserve.splice(firstKingIndex, 1);
+  const playerAKing = firstRemovedKing[0];
+
+  // Find the next card with the rank of King in specialReserve deck
+  const secondKingIndex = specialReserve.findIndex(card => card.rank === "king");
+  const secondRemovedKing = specialReserve.splice(secondKingIndex, 1);
+  const playerBKing = secondRemovedKing[0];
+
+
+
+  return {
+    playerAKing,
+    playerBKing
+  };
+}

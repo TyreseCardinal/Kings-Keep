@@ -2,7 +2,8 @@ import {
   createDeck,
   createTowerCreationDeck,
   shuffleDeck,
-  dealTowerCards
+  dealTowerCards,
+  dealStartingKings
 } from "./systems/deckSystem.js";
 
 const deck = createDeck();
@@ -19,11 +20,15 @@ const {
   playerBTower
 } = dealTowerCards(towerCreationDeck);
 
+const {
+  playerAKing,
+  playerBKing
+} = dealStartingKings(specialReserve);
+
+
 console.log(playerATower);
 console.log(playerBTower);
 
-console.log(playerATower.length);
-console.log(playerBTower.length);
-
-console.log(towerCreationDeck.length);
+console.log(playerAKing);
+console.log(playerBKing);
 console.log(specialReserve.length);

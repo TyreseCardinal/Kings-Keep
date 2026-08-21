@@ -104,3 +104,22 @@ export function dealStartingKings(specialReserve) {
     playerBKing
   };
 }
+
+// Combine remaining cards in towerCreationDeck and specialReserve into drawPile 
+export function createDrawPile(towerCreationDeck, specialReserve) {
+  const drawPile = [];
+
+  // Move remaining tower cards into drawPile
+  while (towerCreationDeck.length > 0) {
+    drawPile.push(towerCreationDeck.shift());
+  }
+
+  // Move remaining special cards into drawPile
+  while (specialReserve.length > 0) {
+    drawPile.push(specialReserve.shift());
+  }
+  // Shuffle drawPile
+  shuffleDeck(drawPile);
+
+  return drawPile;
+}

@@ -3,7 +3,8 @@ import {
   createTowerCreationDeck,
   shuffleDeck,
   dealTowerCards,
-  dealStartingKings
+  dealStartingKings,
+  createDrawPile
 } from "./systems/deckSystem.js";
 
 const deck = createDeck();
@@ -25,10 +26,15 @@ const {
   playerBKing
 } = dealStartingKings(specialReserve);
 
+const drawPile = createDrawPile(
+  towerCreationDeck,
+  specialReserve
+);
+
+playerATower.push(playerAKing);
+playerBTower.push(playerBKing);
 
 console.log(playerATower);
 console.log(playerBTower);
 
-console.log(playerAKing);
-console.log(playerBKing);
-console.log(specialReserve.length);
+console.log(drawPile);

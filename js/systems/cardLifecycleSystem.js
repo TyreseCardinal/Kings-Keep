@@ -48,3 +48,17 @@ export function moveCards(source, destination, amount) {
   }
   return i;
 }
+
+export function recycleDeadPile(drawPile, deadPile, shuffle) {
+  if (drawPile.length > 0) {
+    return;
+  }
+
+  if (deadPile.length === 0) {
+    return;
+  }
+
+  moveCards(deadPile, drawPile, deadPile.length);
+
+  shuffle(drawPile);
+}

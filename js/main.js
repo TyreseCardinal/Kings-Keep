@@ -7,10 +7,7 @@ import {
   createDrawPile,
 } from "./systems/deckSystem.js";
 
-import {
-  createPlayer,
-  drawStartingHand,
-} from "./systems/playerSystem.js";
+import { createPlayer, drawStartingHand } from "./systems/playerSystem.js";
 
 import { moveCards } from "./systems/cardLifecycleSystem.js";
 
@@ -37,6 +34,7 @@ moveCards(playerATower, playerA.tower, playerATower.length);
 moveCards(playerBTower, playerB.tower, playerBTower.length);
 
 drawStartingHand(playerA, drawPile);
+drawStartingHand(playerB, drawPile);
 
 // ------------------------------
 // CURRENT GAME STATE
@@ -45,6 +43,3 @@ drawStartingHand(playerA, drawPile);
 console.log("Player A:", playerA);
 console.log("Player B:", playerB);
 console.log("Draw Pile:", drawPile.length);
-
-
-

@@ -20,7 +20,18 @@ export function drawCard(player, drawPile) {
 
   if (drawnCard.type === "number") {
     moveCard(drawPile, player.hand);
-  } else if (drawnCard.type === "special") {
+  } else if (
+    drawnCard.type === "special" &&
+    player.specialHand.length < 3
+  ) {
     moveCard(drawPile, player.specialHand);
+  } else {
+    moveCard(drawPile, drawPile);
+  }
+}
+
+export function drawStartingHand(player, drawPile) {
+  while (player.hand.length !== 5 && drawPile.length !== 0) {
+    drawCard(player, drawPile);
   }
 }

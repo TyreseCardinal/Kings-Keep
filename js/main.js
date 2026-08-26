@@ -11,21 +11,18 @@ import {
 } from "./systems/deckSystem.js";
 
 // Player System Imports
-import {
-  createPlayer,
-  drawStartingHand,
-} from "./systems/playerSystem.js";
+import { createPlayer, drawStartingHand } from "./systems/playerSystem.js";
 
 // Card Lifecycle System Imports
-import {
-  moveCards,
-} from "./systems/cardLifecycleSystem.js";
+import { moveCards } from "./systems/cardLifecycleSystem.js";
 
 // Tower System Imports
 import {
   getActiveWall,
   getHiddenWalls,
   getKing,
+  isKingActive,
+  advanceTower,
 } from "./systems/towerSystem.js";
 
 // Wall System Imports
@@ -33,9 +30,7 @@ import {
   createWallState,
   applyWallDamage,
   isWallDestroyed,
-  destroyWall,
 } from "./systems/wallSystem.js";
-
 
 // DECK SYSTEM FUNCTIONS
 
@@ -43,27 +38,22 @@ import {
 const deck = createDeck();
 
 // Create Tower Creation Deck and Special Reserve
-const { towerCreationDeck, specialReserve } =
-  createTowerCreationDeck(deck);
+const { towerCreationDeck, specialReserve } = createTowerCreationDeck(deck);
 
 // Shuffle Tower Creation Deck
 shuffleDeck(towerCreationDeck);
 
 // Deal Tower Cards
-const { playerATower, playerBTower } =
-  dealTowerCards(towerCreationDeck);
+const { playerATower, playerBTower } = dealTowerCards(towerCreationDeck);
 
 // Deal Starting Kings
-const { playerAKing, playerBKing } =
-  dealStartingKings(specialReserve);
+const { playerAKing, playerBKing } = dealStartingKings(specialReserve);
 
 // Create Draw Pile
-const drawPile =
-  createDrawPile(towerCreationDeck, specialReserve);
+const drawPile = createDrawPile(towerCreationDeck, specialReserve);
 
 // Create Dead Pile
 const deadPile = [];
-
 
 // PLAYER SYSTEM FUNCTIONS
 
@@ -76,22 +66,13 @@ playerATower.push(playerAKing);
 playerBTower.push(playerBKing);
 
 // Transfer Towers to Players
-moveCards(
-  playerATower,
-  playerA.tower,
-  playerATower.length
-);
+moveCards(playerATower, playerA.tower, playerATower.length);
 
-moveCards(
-  playerBTower,
-  playerB.tower,
-  playerBTower.length
-);
+moveCards(playerBTower, playerB.tower, playerBTower.length);
 
 // Draw Starting Hands
 drawStartingHand(playerA, drawPile);
 drawStartingHand(playerB, drawPile);
-
 
 // TOWER SYSTEM FUNCTIONS
 
@@ -107,13 +88,11 @@ const playerBHiddenWalls = getHiddenWalls(playerB);
 const playerAKingCard = getKing(playerA);
 const playerBKingCard = getKing(playerB);
 
-
 // WALL SYSTEM FUNCTIONS
 
 // Create Active Wall States
 const playerAWallState = createWallState(playerAActiveWall);
 const playerBWallState = createWallState(playerBActiveWall);
-
 
 // TESTING
 
@@ -134,18 +113,29 @@ console.log("Player B Hidden Walls:", playerBHiddenWalls);
 console.log("Player B King:", playerBKingCard);
 
 // Wall Destruction Test
+
 console.log("Tower Before Destruction:", playerA.tower.length);
+
 console.log("Dead Pile Before Destruction:", deadPile.length);
+
 console.log("Active Wall Before Destruction:", getActiveWall(playerA));
 
 applyWallDamage(playerAWallState, 20);
 
 console.log("Wall HP:", playerAWallState.currentHp);
+
 console.log("Wall Destroyed:", isWallDestroyed(playerAWallState));
 
-destroyWall(playerA, playerAWallState, deadPile);
+const newWallState = advanceTower(playerA, playerAWallState, deadPile);
 
-console.log("Tower After Destruction:", playerA.tower.length);
-console.log("Dead Pile After Destruction:", deadPile.length);
+console.log("Tower After Advancement:", playerA.tower.length);
+
+console.log("Dead Pile After Advancement:", deadPile.length);
+
 console.log("New Active Wall:", getActiveWall(playerA));
+
+console.log("New Wall State:", newWallState);
+
 console.log("Dead Pile:", deadPile);
+
+console.log("Player A King Active:", isKingActive(playerA));

@@ -5,6 +5,7 @@ export function createWallState(card) {
     card: card,
     baseHp: card.baseValue,
     currentHp: card.baseValue,
+    fortification: null,
   };
 
   return wall;

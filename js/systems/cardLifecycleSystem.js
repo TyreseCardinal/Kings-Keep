@@ -63,12 +63,7 @@ export function recycleDeadPile(drawPile, deadPile, shuffle) {
   shuffle(drawPile);
 }
 
-export function moveCardByIdToProperty(
-  source,
-  destination,
-  property,
-  cardId
-) {
+export function moveCardByIdToProperty(source, destination, property, cardId) {
   const index = source.findIndex((card) => {
     return card.id === cardId;
   });
@@ -82,6 +77,19 @@ export function moveCardByIdToProperty(
   const card = removedCards[0];
 
   destination[property] = card;
+
+  return card;
+}
+
+export function moveCardFromProperty(source, property, destination) {
+  const card = source[property];
+
+  if (card === null) {
+    return;
+  }
+
+  source[property] = null;
+  destination.push(card);
 
   return card;
 }

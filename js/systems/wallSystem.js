@@ -1,5 +1,7 @@
 import { moveCardById } from "./cardLifecycleSystem.js";
 
+import { destroyFortification } from "./fortificationSystem.js";
+
 export function createWallState(card) {
   const wall = {
     card: card,
@@ -28,5 +30,14 @@ export function destroyWall(player, wall, deadPile) {
     return;
   }
 
-  moveCardById(player.tower, deadPile, wall.card.id); 
+  destroyFortification(
+    wall,
+    deadPile,
+  );
+
+  moveCardById(
+    player.tower,
+    deadPile,
+    wall.card.id,
+  );
 }

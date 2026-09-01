@@ -1,11 +1,14 @@
 import { moveCard } from "./cardLifecycleSystem.js";
 
+import { createSiege } from "./siegeSystem.js";
+
 export function createPlayer(id) {
   const player = {
     id: id,
     hand: [],
     specialHand: [],
     tower: [],
+    siege: createSiege(),
   };
 
   return player;
@@ -20,10 +23,7 @@ export function drawCard(player, drawPile) {
 
   if (drawnCard.type === "number") {
     moveCard(drawPile, player.hand);
-  } else if (
-    drawnCard.type === "special" &&
-    player.specialHand.length < 3
-  ) {
+  } else if (drawnCard.type === "special" && player.specialHand.length < 3) {
     moveCard(drawPile, player.specialHand);
   } else {
     moveCard(drawPile, drawPile);

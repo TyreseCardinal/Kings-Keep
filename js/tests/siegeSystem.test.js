@@ -21,6 +21,9 @@ import {
   getWinningSiegeCards,
   getSuitRepetitionCount,
   getFinalSiegeDamage,
+  didWinAllNumberedLanes,
+  isSiegeSweep,
+  getSweepSpecialSuit,
 } from "../systems/siegeSystem.js";
 
 // Card System Imports
@@ -871,6 +874,7 @@ const repetitionActiveWall = createCard("hearts", "7");
 
 const repetitionCount = getSuitRepetitionCount(
   repetitionPlayerA,
+  repetitionPlayerB,
   repetitionResults,
   "playerA",
   repetitionActiveWall,
@@ -917,6 +921,7 @@ const finalDamageActiveWall = createCard("hearts", "7");
 
 const finalSiegeDamage = getFinalSiegeDamage(
   finalDamagePlayerA,
+  finalDamagePlayerB,
   finalDamageResults,
   "playerA",
   finalDamageActiveWall,
@@ -958,10 +963,12 @@ const mismatchResults = resolveSiegeLanes(mismatchPlayerA, mismatchPlayerB);
 
 // Winning cards are Hearts,
 // but the Active Wall is Clubs.
+
 const mismatchActiveWall = createCard("clubs", "7");
 
 const mismatchRepetitionCount = getSuitRepetitionCount(
   mismatchPlayerA,
+  mismatchPlayerB,
   mismatchResults,
   "playerA",
   mismatchActiveWall,
@@ -969,6 +976,7 @@ const mismatchRepetitionCount = getSuitRepetitionCount(
 
 const mismatchFinalDamage = getFinalSiegeDamage(
   mismatchPlayerA,
+  mismatchPlayerB,
   mismatchResults,
   "playerA",
   mismatchActiveWall,
@@ -981,4 +989,323 @@ console.log("Active Wall Mismatch Final Damage:", mismatchFinalDamage);
 console.log(
   "Mismatched Active Wall Prevents Repetition:",
   mismatchRepetitionCount === 0 && mismatchFinalDamage === 18,
+);
+
+// All Numbered Lanes Won Test
+
+const allNumberWinsPlayerA = createPlayer("all-number-wins-player-a");
+
+const allNumberWinsPlayerB = createPlayer("all-number-wins-player-b");
+
+const allNumberWinsALeft = createCard("hearts", "9");
+
+const allNumberWinsACenter = createCard("diamonds", "7");
+
+const allNumberWinsASpecial = createCard("clubs", "ace");
+
+const allNumberWinsBLeft = createCard("clubs", "5");
+
+const allNumberWinsBCenter = createCard("spades", "3");
+
+allNumberWinsPlayerA.hand.push(allNumberWinsALeft, allNumberWinsACenter);
+
+allNumberWinsPlayerA.specialHand.push(allNumberWinsASpecial);
+
+allNumberWinsPlayerB.hand.push(allNumberWinsBLeft, allNumberWinsBCenter);
+
+playSiegeCard(allNumberWinsPlayerA, allNumberWinsALeft, "left");
+
+playSiegeCard(allNumberWinsPlayerA, allNumberWinsACenter, "center");
+
+playSiegeCard(allNumberWinsPlayerA, allNumberWinsASpecial, "right");
+
+playSiegeCard(allNumberWinsPlayerB, allNumberWinsBLeft, "left");
+
+playSiegeCard(allNumberWinsPlayerB, allNumberWinsBCenter, "center");
+
+const allNumberWinsResults = resolveSiegeLanes(
+  allNumberWinsPlayerA,
+  allNumberWinsPlayerB,
+);
+
+console.log("All Numbered Lanes Results:", allNumberWinsResults);
+
+console.log(
+  "All Played Numbered Lanes Won:",
+  didWinAllNumberedLanes(allNumberWinsPlayerA, allNumberWinsResults, "playerA"),
+);
+
+// One Numbered Lane Lost Test
+
+const oneLossPlayerA = createPlayer("one-loss-player-a");
+
+const oneLossPlayerB = createPlayer("one-loss-player-b");
+
+const oneLossALeft = createCard("hearts", "9");
+
+const oneLossACenter = createCard("diamonds", "4");
+
+const oneLossBLeft = createCard("clubs", "5");
+
+const oneLossBCenter = createCard("spades", "8");
+
+oneLossPlayerA.hand.push(oneLossALeft, oneLossACenter);
+
+oneLossPlayerB.hand.push(oneLossBLeft, oneLossBCenter);
+
+playSiegeCard(oneLossPlayerA, oneLossALeft, "left");
+
+playSiegeCard(oneLossPlayerA, oneLossACenter, "center");
+
+playSiegeCard(oneLossPlayerB, oneLossBLeft, "left");
+
+playSiegeCard(oneLossPlayerB, oneLossBCenter, "center");
+
+const oneLossResults = resolveSiegeLanes(oneLossPlayerA, oneLossPlayerB);
+
+console.log("One Numbered Lane Lost Results:", oneLossResults);
+
+console.log(
+  "One Lost Numbered Lane Prevents Win-All:",
+  !didWinAllNumberedLanes(oneLossPlayerA, oneLossResults, "playerA"),
+);
+
+// No Numbered Lanes Test
+
+const noNumbersPlayerA = createPlayer("no-numbers-player-a");
+
+const noNumbersPlayerB = createPlayer("no-numbers-player-b");
+
+const noNumbersSpecial = createCard("hearts", "ace");
+
+noNumbersPlayerA.specialHand.push(noNumbersSpecial);
+
+playSiegeCard(noNumbersPlayerA, noNumbersSpecial, "center");
+
+const noNumbersResults = resolveSiegeLanes(noNumbersPlayerA, noNumbersPlayerB);
+
+console.log("No Numbered Lanes Results:", noNumbersResults);
+
+console.log(
+  "No Numbered Lanes Prevents Win-All:",
+  !didWinAllNumberedLanes(noNumbersPlayerA, noNumbersResults, "playerA"),
+);
+
+// Siege Sweep Without Special Test
+
+const sweepNoSpecialPlayerA = createPlayer("sweep-no-special-player-a");
+
+const sweepNoSpecialPlayerB = createPlayer("sweep-no-special-player-b");
+
+const sweepNoSpecialALeft = createCard("hearts", "9");
+
+const sweepNoSpecialACenter = createCard("clubs", "7");
+
+const sweepNoSpecialBLeft = createCard("diamonds", "4");
+
+const sweepNoSpecialBCenter = createCard("spades", "3");
+
+sweepNoSpecialPlayerA.hand.push(sweepNoSpecialALeft, sweepNoSpecialACenter);
+
+sweepNoSpecialPlayerB.hand.push(sweepNoSpecialBLeft, sweepNoSpecialBCenter);
+
+playSiegeCard(sweepNoSpecialPlayerA, sweepNoSpecialALeft, "left");
+
+playSiegeCard(sweepNoSpecialPlayerA, sweepNoSpecialACenter, "center");
+
+playSiegeCard(sweepNoSpecialPlayerB, sweepNoSpecialBLeft, "left");
+
+playSiegeCard(sweepNoSpecialPlayerB, sweepNoSpecialBCenter, "center");
+
+const sweepNoSpecialResults = resolveSiegeLanes(
+  sweepNoSpecialPlayerA,
+  sweepNoSpecialPlayerB,
+);
+
+console.log("Sweep Without Special Results:", sweepNoSpecialResults);
+
+console.log(
+  "Siege Sweep Without Special:",
+  isSiegeSweep(
+    sweepNoSpecialPlayerA,
+    sweepNoSpecialPlayerB,
+    sweepNoSpecialResults,
+    "playerA",
+  ),
+);
+
+// Siege Sweep With Successful Special Test
+
+const sweepSpecialPlayerA = createPlayer("sweep-special-player-a");
+
+const sweepSpecialPlayerB = createPlayer("sweep-special-player-b");
+
+const sweepSpecialANumber = createCard("hearts", "9");
+
+const sweepSpecialASpecial = createCard("clubs", "ace");
+
+const sweepSpecialBNumber = createCard("spades", "5");
+
+sweepSpecialPlayerA.hand.push(sweepSpecialANumber);
+
+sweepSpecialPlayerA.specialHand.push(sweepSpecialASpecial);
+
+sweepSpecialPlayerB.hand.push(sweepSpecialBNumber);
+
+playSiegeCard(sweepSpecialPlayerA, sweepSpecialANumber, "left");
+
+playSiegeCard(sweepSpecialPlayerA, sweepSpecialASpecial, "center");
+
+playSiegeCard(sweepSpecialPlayerB, sweepSpecialBNumber, "left");
+
+const sweepSpecialResults = resolveSiegeLanes(
+  sweepSpecialPlayerA,
+  sweepSpecialPlayerB,
+);
+
+console.log("Sweep With Special Results:", sweepSpecialResults);
+
+console.log(
+  "Siege Sweep With Successful Special:",
+  isSiegeSweep(
+    sweepSpecialPlayerA,
+    sweepSpecialPlayerB,
+    sweepSpecialResults,
+    "playerA",
+  ),
+);
+
+// Siege Sweep Cancelled Special Test
+
+const cancelledSweepPlayerA = createPlayer("cancelled-sweep-player-a");
+
+const cancelledSweepPlayerB = createPlayer("cancelled-sweep-player-b");
+
+const cancelledSweepANumber = createCard("hearts", "9");
+
+const cancelledSweepASpecial = createCard("clubs", "ace");
+
+const cancelledSweepBNumber = createCard("spades", "5");
+
+const cancelledSweepBSpecial = createCard("diamonds", "ace");
+
+cancelledSweepPlayerA.hand.push(cancelledSweepANumber);
+
+cancelledSweepPlayerA.specialHand.push(cancelledSweepASpecial);
+
+cancelledSweepPlayerB.hand.push(cancelledSweepBNumber);
+
+cancelledSweepPlayerB.specialHand.push(cancelledSweepBSpecial);
+
+playSiegeCard(cancelledSweepPlayerA, cancelledSweepANumber, "left");
+
+playSiegeCard(cancelledSweepPlayerA, cancelledSweepASpecial, "center");
+
+playSiegeCard(cancelledSweepPlayerB, cancelledSweepBNumber, "left");
+
+playSiegeCard(cancelledSweepPlayerB, cancelledSweepBSpecial, "right");
+
+const cancelledSweepResults = resolveSiegeLanes(
+  cancelledSweepPlayerA,
+  cancelledSweepPlayerB,
+);
+
+console.log("Cancelled Sweep Results:", cancelledSweepResults);
+
+console.log(
+  "Cancelled Special Prevents Siege Sweep:",
+  !isSiegeSweep(
+    cancelledSweepPlayerA,
+    cancelledSweepPlayerB,
+    cancelledSweepResults,
+    "playerA",
+  ),
+);
+
+// Sweep Special Suit Contribution Test
+
+const sweepSuitPlayerA = createPlayer("sweep-suit-player-a");
+
+const sweepSuitPlayerB = createPlayer("sweep-suit-player-b");
+
+const sweepSuitANumber = createCard("hearts", "9");
+
+const sweepSuitASpecial = createCard("clubs", "ace");
+
+const sweepSuitBNumber = createCard("spades", "5");
+
+sweepSuitPlayerA.hand.push(sweepSuitANumber);
+
+sweepSuitPlayerA.specialHand.push(sweepSuitASpecial);
+
+sweepSuitPlayerB.hand.push(sweepSuitBNumber);
+
+playSiegeCard(sweepSuitPlayerA, sweepSuitANumber, "left");
+
+playSiegeCard(sweepSuitPlayerA, sweepSuitASpecial, "center");
+
+playSiegeCard(sweepSuitPlayerB, sweepSuitBNumber, "left");
+
+const sweepSuitResults = resolveSiegeLanes(sweepSuitPlayerA, sweepSuitPlayerB);
+
+const sweepSpecialSuit = getSweepSpecialSuit(
+  sweepSuitPlayerA,
+  sweepSuitPlayerB,
+  sweepSuitResults,
+  "playerA",
+);
+
+console.log("Sweep Special Suit:", sweepSpecialSuit);
+
+console.log(
+  "Successful Sweep Returns Special Suit:",
+  sweepSpecialSuit === "clubs",
+);
+
+// Sweep Special Suit Repetition Test
+
+const sweepRepetitionPlayerA = createPlayer("sweep-repetition-player-a");
+
+const sweepRepetitionPlayerB = createPlayer("sweep-repetition-player-b");
+
+const sweepRepetitionNumberA = createCard("hearts", "9");
+
+const sweepRepetitionSpecialA = createCard("hearts", "ace");
+
+const sweepRepetitionNumberB = createCard("clubs", "5");
+
+sweepRepetitionPlayerA.hand.push(sweepRepetitionNumberA);
+
+sweepRepetitionPlayerA.specialHand.push(sweepRepetitionSpecialA);
+
+sweepRepetitionPlayerB.hand.push(sweepRepetitionNumberB);
+
+playSiegeCard(sweepRepetitionPlayerA, sweepRepetitionNumberA, "left");
+
+playSiegeCard(sweepRepetitionPlayerA, sweepRepetitionSpecialA, "center");
+
+playSiegeCard(sweepRepetitionPlayerB, sweepRepetitionNumberB, "left");
+
+const sweepRepetitionResults = resolveSiegeLanes(
+  sweepRepetitionPlayerA,
+  sweepRepetitionPlayerB,
+);
+
+const sweepRepetitionActiveWall = createCard("hearts", "7");
+
+const sweepRepetitionCount = getSuitRepetitionCount(
+  sweepRepetitionPlayerA,
+  sweepRepetitionPlayerB,
+  sweepRepetitionResults,
+  "playerA",
+  sweepRepetitionActiveWall,
+);
+
+console.log("Sweep Suit Repetition Results:", sweepRepetitionResults);
+
+console.log("Sweep Suit Repetition Count:", sweepRepetitionCount);
+
+console.log(
+  "Sweep Special Contributes To Repetition:",
+  sweepRepetitionCount === 2,
 );

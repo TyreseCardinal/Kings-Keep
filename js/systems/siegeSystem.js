@@ -173,6 +173,59 @@ export function canResolveSiegeSpecial(
   return true;
 }
 
+export function didWinAllNumberedLanes(player, laneResults, playerKey) {
+  const lanes = ["left", "center", "right"];
+
+  let numberedLaneFound = false;
+
+  for (const lane of lanes) {
+    const card = player.siege[lane][0];
+
+    if (card?.type === "number") {
+      numberedLaneFound = true;
+
+      if (laneResults[lane] !== playerKey) {
+        return false;
+      }
+    }
+  }
+  return numberedLaneFound;
+}
+
+export function isSiegeSweep(player, opponent, laneResults, playerKey) {
+  const wonAllNumberedLanes = didWinAllNumberedLanes(
+    player,
+    laneResults,
+    playerKey,
+  );
+
+  if (!wonAllNumberedLanes) {
+    return false;
+  }
+
+  const special = getSiegeSpecial(player);
+
+  if (special === null) {
+    return true;
+  }
+
+  return canResolveSiegeSpecial(player, opponent, laneResults, playerKey);
+}
+
+export function getSweepSpecialSuit(player, opponent, laneResults, playerKey) {
+  if (!isSiegeSweep(player, opponent, laneResults, playerKey)) {
+    return null;
+  }
+
+  const special = getSiegeSpecial(player);
+
+  if (special === null) {
+    return null;
+  }
+
+  return special.suit;
+}
+
 export function getWinningSiegeCards(player, siegeResults, playerResult) {
   const lanes = ["left", "center", "right"];
 
@@ -191,11 +244,16 @@ export function getWinningSiegeCards(player, siegeResults, playerResult) {
 
 export function getSuitRepetitionCount(
   player,
+  opponent,
   siegeResults,
   playerResult,
   activeWall,
 ) {
-  const winningCards = getWinningSiegeCards(player, siegeResults, playerResult);
+  const winningCards = getWinningSiegeCards(
+    player,
+    siegeResults,
+    playerResult,
+  );
 
   let matchingSuitCount = 0;
 
@@ -203,6 +261,17 @@ export function getSuitRepetitionCount(
     if (card.suit === activeWall.suit) {
       matchingSuitCount++;
     }
+  }
+
+  const sweepSpecialSuit = getSweepSpecialSuit(
+    player,
+    opponent,
+    siegeResults,
+    playerResult,
+  );
+
+  if (sweepSpecialSuit === activeWall.suit) {
+    matchingSuitCount++;
   }
 
   if (matchingSuitCount < 2) {
@@ -214,24 +283,20 @@ export function getSuitRepetitionCount(
 
 export function getFinalSiegeDamage(
   player,
+  opponent,
   siegeResults,
   playerResult,
   activeWall,
 ) {
-  const baseDamage =
-    getBaseSiegeDamage(
-      player,
-      siegeResults,
-      playerResult,
-    );
+  const baseDamage = getBaseSiegeDamage(player, siegeResults, playerResult);
 
-  const repetitionCount =
-    getSuitRepetitionCount(
-      player,
-      siegeResults,
-      playerResult,
-      activeWall,
-    );
+  const repetitionCount = getSuitRepetitionCount(
+    player,
+    opponent,
+    siegeResults,
+    playerResult,
+    activeWall,
+  );
 
   if (repetitionCount === 0) {
     return baseDamage;

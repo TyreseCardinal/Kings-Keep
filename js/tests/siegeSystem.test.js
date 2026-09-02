@@ -24,6 +24,7 @@ import {
   didWinAllNumberedLanes,
   isSiegeSweep,
   getSweepSpecialSuit,
+  getRepeatedSiegeDamage,
 } from "../systems/siegeSystem.js";
 
 // Card System Imports
@@ -1308,4 +1309,108 @@ console.log("Sweep Suit Repetition Count:", sweepRepetitionCount);
 console.log(
   "Sweep Special Contributes To Repetition:",
   sweepRepetitionCount === 2,
+);
+
+// Repeated Siege Damage Test
+
+const repeatedDamagePlayerA = createPlayer("repeated-damage-player-a");
+
+const repeatedDamagePlayerB = createPlayer("repeated-damage-player-b");
+
+const repeatedDamageTenHearts = createCard("hearts", "10");
+
+const repeatedDamageNineClubs = createCard("clubs", "9");
+
+const repeatedDamageAceHearts = createCard("hearts", "ace");
+
+const repeatedDamageFiveClubs = createCard("clubs", "5");
+
+repeatedDamagePlayerA.hand.push(
+  repeatedDamageTenHearts,
+  repeatedDamageNineClubs,
+);
+
+repeatedDamagePlayerA.specialHand.push(repeatedDamageAceHearts);
+
+repeatedDamagePlayerB.hand.push(repeatedDamageFiveClubs);
+
+playSiegeCard(repeatedDamagePlayerA, repeatedDamageTenHearts, "left");
+
+playSiegeCard(repeatedDamagePlayerA, repeatedDamageNineClubs, "right");
+
+playSiegeCard(repeatedDamagePlayerA, repeatedDamageAceHearts, "center");
+
+playSiegeCard(repeatedDamagePlayerB, repeatedDamageFiveClubs, "left");
+
+const repeatedDamageResults = resolveSiegeLanes(
+  repeatedDamagePlayerA,
+  repeatedDamagePlayerB,
+);
+
+const repeatedDamageActiveWall = createCard("hearts", "7");
+
+const repeatedSiegeDamage = getRepeatedSiegeDamage(
+  repeatedDamagePlayerA,
+  repeatedDamagePlayerB,
+  repeatedDamageResults,
+  "playerA",
+  repeatedDamageActiveWall,
+);
+
+console.log("Repeated Damage Siege Results:", repeatedDamageResults);
+
+console.log("Repeated Siege Damage:", repeatedSiegeDamage);
+
+console.log("Only Matching Winning Lane Repeats:", repeatedSiegeDamage === 10);
+
+// Mixed Suit Final Siege Damage Test
+
+const mixedRepeatPlayerA = createPlayer("mixed-repeat-player-a");
+
+const mixedRepeatPlayerB = createPlayer("mixed-repeat-player-b");
+
+const mixedRepeatTenHearts = createCard("hearts", "10");
+
+const mixedRepeatNineClubs = createCard("clubs", "9");
+
+const mixedRepeatAceHearts = createCard("hearts", "ace");
+
+const mixedRepeatFiveClubs = createCard("clubs", "5");
+
+mixedRepeatPlayerA.hand.push(mixedRepeatTenHearts, mixedRepeatNineClubs);
+
+mixedRepeatPlayerA.specialHand.push(mixedRepeatAceHearts);
+
+mixedRepeatPlayerB.hand.push(mixedRepeatFiveClubs);
+
+playSiegeCard(mixedRepeatPlayerA, mixedRepeatTenHearts, "left");
+
+playSiegeCard(mixedRepeatPlayerA, mixedRepeatAceHearts, "center");
+
+playSiegeCard(mixedRepeatPlayerA, mixedRepeatNineClubs, "right");
+
+playSiegeCard(mixedRepeatPlayerB, mixedRepeatFiveClubs, "left");
+
+const mixedRepeatResults = resolveSiegeLanes(
+  mixedRepeatPlayerA,
+  mixedRepeatPlayerB,
+);
+
+const mixedRepeatActiveWall = createCard("hearts", "7");
+
+const mixedRepeatFinalDamage = getFinalSiegeDamage(
+  mixedRepeatPlayerA,
+  mixedRepeatPlayerB,
+  mixedRepeatResults,
+  "playerA",
+  mixedRepeatActiveWall,
+);
+
+console.log("Mixed Suit Final Damage Results:", mixedRepeatResults);
+
+console.log("Mixed Suit Final Siege Damage:", mixedRepeatFinalDamage);
+
+console.log(
+  "Only Matching Suit Damage Repeats:",
+  mixedRepeatFinalDamage === 29,
 );

@@ -281,15 +281,13 @@ export function getSuitRepetitionCount(
   return matchingSuitCount;
 }
 
-export function getFinalSiegeDamage(
+export function getRepeatedSiegeDamage(
   player,
   opponent,
   siegeResults,
   playerResult,
   activeWall,
 ) {
-  const baseDamage = getBaseSiegeDamage(player, siegeResults, playerResult);
-
   const repetitionCount = getSuitRepetitionCount(
     player,
     opponent,
@@ -299,8 +297,46 @@ export function getFinalSiegeDamage(
   );
 
   if (repetitionCount === 0) {
-    return baseDamage;
+    return 0;
   }
 
-  return baseDamage * repetitionCount;
+  const winningCards = getWinningSiegeCards(
+    player,
+    siegeResults,
+    playerResult,
+  );
+
+  let repeatedDamage = 0;
+
+  for (const card of winningCards) {
+    if (card.suit === activeWall.suit) {
+      repeatedDamage += card.siegeValue;
+    }
+  }
+
+  return repeatedDamage;
+}
+
+export function getFinalSiegeDamage(
+  player,
+  opponent,
+  siegeResults,
+  playerResult,
+  activeWall,
+) {
+  const baseDamage = getBaseSiegeDamage(
+    player,
+    siegeResults,
+    playerResult,
+  );
+
+  const repeatedDamage = getRepeatedSiegeDamage(
+    player,
+    opponent,
+    siegeResults,
+    playerResult,
+    activeWall,
+  );
+
+  return baseDamage + repeatedDamage;
 }

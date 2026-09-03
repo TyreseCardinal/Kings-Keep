@@ -1,5 +1,7 @@
 import { moveCardById } from "./cardLifecycleSystem.js";
 
+import { isSiegeSpecialCard } from "./specialCardSystem.js";
+
 export function createSiege() {
   const siege = {
     left: [],
@@ -23,11 +25,11 @@ export function canPlayToSiege(player, card, lane) {
     return false;
   }
 
-  if (card.type === "special" && hasSpecialInSiege(player.siege)) {
+  if (isSiegeSpecialCard(card) && hasSpecialInSiege(player.siege)) {
     return false;
   }
 
-  return card.type === "number" || card.type === "special";
+  return card.type === "number" || isSiegeSpecialCard(card);
 }
 
 export function playSiegeCard(player, card, lane) {
@@ -249,11 +251,7 @@ export function getSuitRepetitionCount(
   playerResult,
   activeWall,
 ) {
-  const winningCards = getWinningSiegeCards(
-    player,
-    siegeResults,
-    playerResult,
-  );
+  const winningCards = getWinningSiegeCards(player, siegeResults, playerResult);
 
   let matchingSuitCount = 0;
 
@@ -300,11 +298,7 @@ export function getRepeatedSiegeDamage(
     return 0;
   }
 
-  const winningCards = getWinningSiegeCards(
-    player,
-    siegeResults,
-    playerResult,
-  );
+  const winningCards = getWinningSiegeCards(player, siegeResults, playerResult);
 
   let repeatedDamage = 0;
 
@@ -324,11 +318,7 @@ export function getFinalSiegeDamage(
   playerResult,
   activeWall,
 ) {
-  const baseDamage = getBaseSiegeDamage(
-    player,
-    siegeResults,
-    playerResult,
-  );
+  const baseDamage = getBaseSiegeDamage(player, siegeResults, playerResult);
 
   const repeatedDamage = getRepeatedSiegeDamage(
     player,

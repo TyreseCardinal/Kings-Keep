@@ -7,44 +7,6 @@ export function canFortify(wall, card) {
   return wall.card.baseValue === card.baseValue && wall.fortification === null;
 }
 
-export function canConvert(wall, card) {
-  return hasFortification(wall) && wall.card.baseValue === card.baseValue;
-}
-
-export function convertFortification(
-  player,
-  wall,
-  card,
-  deadPile,
-) {
-  if (!canConvert(wall, card)) {
-    return;
-  }
-
-  const cardInHand = player.hand.find(
-    (handCard) => handCard.id === card.id,
-  );
-
-  if (!cardInHand) {
-    return;
-  }
-
-  const oldHpContribution =
-    wall.fortification.hpContribution;
-
-  destroyFortification(
-    wall,
-    deadPile,
-  );
-
-  wall.currentHp -= oldHpContribution;
-
-  return fortifyWall(
-    player,
-    wall,
-    card,
-  );
-}
 
 export function fortifyWall(player, wall, card) {
   if (!canFortify(wall, card)) {

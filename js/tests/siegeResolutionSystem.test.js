@@ -5,6 +5,20 @@ import { createWallState } from "../systems/wallSystem.js";
 
 import { resolveSiegeAgainstWall } from "../systems/siegeResolutionSystem.js";
 
+import {
+  fortifyWall,
+} from "../systems/fortificationSystem.js";
+
+import {
+  createSiege,
+  setSiegeSpecialState,
+} from "../systems/siegeSystem.js";
+
+import {
+  JACK_MODES,
+  createJackState,
+} from "../systems/specialCards/jack/jackSystem.js";
+
 // --------------------------------------------------
 // TEST: Ace destroys the first wall, then Siege damage
 // destroys the newly exposed wall, but does not carry
@@ -219,4 +233,148 @@ console.log(
 console.log(
   "King Boundary Tower Contains Only King:",
   kingPlayerB.tower.length === 1,
+);
+
+// --------------------------------------------------
+// TEST: Siege resolver applies Disruption Jack
+// before numbered Wall damage
+// --------------------------------------------------
+
+const jackResolverNumber = createCard(
+  "clubs",
+  "5",
+);
+
+const jackResolverJack = createCard(
+  "hearts",
+  "jack",
+);
+
+const jackResolverOpponentNumber = createCard(
+  "diamonds",
+  "3",
+);
+
+const jackResolverWallCard = createCard(
+  "spades",
+  "7",
+);
+
+const jackResolverFortificationCard = createCard(
+  "clubs",
+  "7",
+);
+
+const jackResolverKing = createCard(
+  "hearts",
+  "king",
+);
+
+const jackResolverPlayer = {
+  siege: createSiege(),
+};
+
+const jackResolverOpponent = {
+  siege: createSiege(),
+  tower: [
+    jackResolverWallCard,
+    jackResolverKing,
+  ],
+};
+
+jackResolverPlayer.siege.left.push(
+  jackResolverNumber,
+);
+
+jackResolverPlayer.siege.center.push(
+  jackResolverJack,
+);
+
+jackResolverOpponent.siege.left.push(
+  jackResolverOpponentNumber,
+);
+
+const jackResolverState = createJackState(
+  jackResolverJack,
+  JACK_MODES.DISRUPTION,
+);
+
+setSiegeSpecialState(
+  jackResolverPlayer.siege,
+  jackResolverState,
+);
+
+const jackResolverWall = createWallState(
+  jackResolverWallCard,
+);
+
+const jackResolverDefender = {
+  hand: [
+    jackResolverFortificationCard,
+  ],
+};
+
+const jackResolverDeadPile = [];
+
+fortifyWall(
+  jackResolverDefender,
+  jackResolverWall,
+  jackResolverFortificationCard,
+);
+
+console.log(
+  "Jack Resolver Starting Wall HP:",
+  jackResolverWall.currentHp,
+);
+
+console.log(
+  "Jack Resolver Starts Fortified:",
+  jackResolverWall.fortification !== null,
+);
+
+const jackResolverResult =
+  resolveSiegeAgainstWall(
+    jackResolverPlayer,
+    jackResolverOpponent,
+    jackResolverWall,
+    jackResolverDeadPile,
+    "playerA",
+  );
+
+console.log(
+  "Jack Resolver Final Damage:",
+  jackResolverResult.finalDamage,
+);
+
+console.log(
+  "Jack Resolver Numbered Damage Is 5:",
+  jackResolverResult.finalDamage === 5,
+);
+
+console.log(
+  "Jack Resolver Fortification Removed:",
+  jackResolverWall.fortification === null,
+);
+
+console.log(
+  "Jack Resolver Fortification Entered Dead Pile:",
+  jackResolverDeadPile.includes(
+    jackResolverFortificationCard,
+  ),
+);
+
+console.log(
+  "Jack Resolver Wall HP After:",
+  jackResolverWall.currentHp,
+);
+
+console.log(
+  "Jack Resolved Before Damage:",
+  jackResolverWall.currentHp === 2,
+);
+
+console.log(
+  "Jack Resolver Wall Survived:",
+  jackResolverResult.finalWallState ===
+    jackResolverWall,
 );

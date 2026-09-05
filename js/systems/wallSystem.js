@@ -1,6 +1,9 @@
 import { moveCardById } from "./cardLifecycleSystem.js";
 
-import { destroyFortification } from "./fortificationSystem.js";
+import {
+  destroyFortification,
+  hasFortification,
+} from "./fortificationSystem.js";
 
 export function createWallState(card) {
   const wall = {
@@ -13,11 +16,26 @@ export function createWallState(card) {
   return wall;
 }
 
-export function applyWallDamage(wall, amount) {
+export function applyWallDamage(
+  wall,
+  amount,
+  deadPile = null,
+) {
   wall.currentHp -= amount;
 
   if (wall.currentHp < 0) {
     wall.currentHp = 0;
+  }
+
+  if (
+    deadPile !== null &&
+    hasFortification(wall) &&
+    wall.currentHp <= wall.baseHp
+  ) {
+    destroyFortification(
+      wall,
+      deadPile,
+    );
   }
 }
 

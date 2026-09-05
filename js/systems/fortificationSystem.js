@@ -84,3 +84,24 @@ export function destroyFortification(wall, deadPile) {
     wall.fortification = null;
   }
 }
+
+export function removeFortificationHp(
+  wall,
+  deadPile,
+) {
+  if (!hasFortification(wall)) {
+    return false;
+  }
+
+  wall.currentHp = Math.min(
+    wall.currentHp,
+    wall.baseHp,
+  );
+
+  destroyFortification(
+    wall,
+    deadPile,
+  );
+
+  return true;
+}

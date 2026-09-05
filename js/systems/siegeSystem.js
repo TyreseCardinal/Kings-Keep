@@ -2,18 +2,40 @@ import { moveCardById } from "./cardLifecycleSystem.js";
 
 import { isSiegeSpecialCard } from "./specialCardSystem.js";
 
+import {
+  JACK_MODES,
+  isJack,
+  getJackAttackValue,
+} from "./specialCards/jack/jackSystem.js";
+
 export function createSiege() {
   const siege = {
     left: [],
     center: [],
     right: [],
+    specialState: null,
   };
 
   return siege;
 }
 
 export function isValidLane(siege, lane) {
-  return Object.hasOwn(siege, lane);
+  const validLanes = [
+    "left",
+    "center",
+    "right",
+  ];
+
+  return (
+    validLanes.includes(lane) &&
+    Array.isArray(siege[lane])
+  );
+}
+
+export function setSiegeSpecialState(siege, specialState) {
+  siege.specialState = specialState;
+
+  return siege.specialState;
 }
 
 export function canPlayToSiege(player, card, lane) {
@@ -50,20 +72,36 @@ export function playSiegeCard(player, card, lane) {
   return moveCardById(source, player.siege[lane], card.id);
 }
 
-export function getLaneAttackValue(lane) {
+export function getLaneAttackValue(lane, specialState = null) {
   let totalAttack = 0;
 
   for (const card of lane) {
+    if (isJack(card) && specialState?.card === card) {
+      totalAttack += getJackAttackValue(specialState);
+      continue;
+    }
+
     totalAttack += card.siegeValue;
   }
 
   return totalAttack;
 }
 
-export function compareLaneAttack(playerALane, playerBLane) {
-  const playerAAttack = getLaneAttackValue(playerALane);
+export function compareLaneAttack(
+  playerALane,
+  playerBLane,
+  playerASpecialState = null,
+  playerBSpecialState = null,
+) {
+  const playerAAttack = getLaneAttackValue(
+    playerALane,
+    playerASpecialState,
+  );
 
-  const playerBAttack = getLaneAttackValue(playerBLane);
+  const playerBAttack = getLaneAttackValue(
+    playerBLane,
+    playerBSpecialState,
+  );
 
   if (playerAAttack > playerBAttack) {
     return "playerA";
@@ -78,11 +116,26 @@ export function compareLaneAttack(playerALane, playerBLane) {
 
 export function resolveSiegeLanes(playerA, playerB) {
   const results = {
-    left: compareLaneAttack(playerA.siege.left, playerB.siege.left),
+    left: compareLaneAttack(
+      playerA.siege.left,
+      playerB.siege.left,
+      playerA.siege.specialState,
+      playerB.siege.specialState,
+    ),
 
-    center: compareLaneAttack(playerA.siege.center, playerB.siege.center),
+    center: compareLaneAttack(
+      playerA.siege.center,
+      playerB.siege.center,
+      playerA.siege.specialState,
+      playerB.siege.specialState,
+    ),
 
-    right: compareLaneAttack(playerA.siege.right, playerB.siege.right),
+    right: compareLaneAttack(
+      playerA.siege.right,
+      playerB.siege.right,
+      playerA.siege.specialState,
+      playerB.siege.specialState,
+    ),
   };
 
   return results;
@@ -142,11 +195,26 @@ export function getSiegeSpecial(player) {
 
 export function areSiegeSpecialsCancelled(playerA, playerB) {
   const playerASpecial = getSiegeSpecial(playerA);
-
   const playerBSpecial = getSiegeSpecial(playerB);
 
   if (playerASpecial === null || playerBSpecial === null) {
     return false;
+  }
+
+  if (
+    isJack(playerASpecial) &&
+    isJack(playerBSpecial)
+  ) {
+    const playerAMode =
+      playerA.siege.specialState?.mode;
+
+    const playerBMode =
+      playerB.siege.specialState?.mode;
+
+    return (
+      playerAMode === JACK_MODES.DISRUPTION &&
+      playerBMode === JACK_MODES.DISRUPTION
+    );
   }
 
   return playerASpecial.rank === playerBSpecial.rank;

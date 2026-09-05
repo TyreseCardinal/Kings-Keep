@@ -293,3 +293,158 @@ console.log(
     noFortificationReplacementCard,
   ),
 );
+
+// --------------------------------------------------
+// TEST: Fortification is depleted by normal damage
+// --------------------------------------------------
+
+const damageWallCard = createCard(
+  "hearts",
+  "7",
+);
+
+const damageFortificationCard = createCard(
+  "clubs",
+  "7",
+);
+
+const damageWall = createWallState(
+  damageWallCard,
+);
+
+const damagePlayer = {
+  hand: [
+    damageFortificationCard,
+  ],
+};
+
+const damageDeadPile = [];
+
+fortifyWall(
+  damagePlayer,
+  damageWall,
+  damageFortificationCard,
+);
+
+console.log(
+  "Damage Test Starting HP:",
+  damageWall.currentHp,
+);
+
+// 14 -> 8
+applyWallDamage(
+  damageWall,
+  6,
+  damageDeadPile,
+);
+
+console.log(
+  "Fortification Survives At 8 HP:",
+  damageWall.fortification !== null,
+);
+
+console.log(
+  "Wall HP After First Damage:",
+  damageWall.currentHp,
+);
+
+console.log(
+  "Dead Pile Still Empty At 8 HP:",
+  damageDeadPile.length === 0,
+);
+
+// 8 -> 7
+applyWallDamage(
+  damageWall,
+  1,
+  damageDeadPile,
+);
+
+console.log(
+  "Wall HP At Fortification Boundary:",
+  damageWall.currentHp,
+);
+
+console.log(
+  "Fortification Removed At 7 HP:",
+  damageWall.fortification === null,
+);
+
+console.log(
+  "Depleted Fortification Entered Dead Pile:",
+  damageDeadPile.includes(
+    damageFortificationCard,
+  ),
+);
+
+console.log(
+  "Underlying Wall Survives At 7 HP:",
+  damageWall.currentHp === 7,
+);
+
+// --------------------------------------------------
+// TEST: Normal damage penetrates depleted
+// Fortification and damages underlying Wall
+// --------------------------------------------------
+
+const penetrationWallCard = createCard(
+  "hearts",
+  "7",
+);
+
+const penetrationFortificationCard = createCard(
+  "clubs",
+  "7",
+);
+
+const penetrationWall = createWallState(
+  penetrationWallCard,
+);
+
+const penetrationPlayer = {
+  hand: [
+    penetrationFortificationCard,
+  ],
+};
+
+const penetrationDeadPile = [];
+
+fortifyWall(
+  penetrationPlayer,
+  penetrationWall,
+  penetrationFortificationCard,
+);
+
+console.log(
+  "Penetration Test Starting HP:",
+  penetrationWall.currentHp,
+);
+
+applyWallDamage(
+  penetrationWall,
+  9,
+  penetrationDeadPile,
+);
+
+console.log(
+  "Penetration Damage Leaves Wall At 5:",
+  penetrationWall.currentHp === 5,
+);
+
+console.log(
+  "Penetrated Fortification Removed:",
+  penetrationWall.fortification === null,
+);
+
+console.log(
+  "Penetrated Fortification Entered Dead Pile:",
+  penetrationDeadPile.includes(
+    penetrationFortificationCard,
+  ),
+);
+
+console.log(
+  "Normal Damage Did Not Clamp Wall Back To 7:",
+  penetrationWall.currentHp !==
+    penetrationWall.baseHp,
+);

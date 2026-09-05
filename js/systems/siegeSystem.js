@@ -8,6 +8,8 @@ import {
   getJackAttackValue,
 } from "./specialCards/jack/jackSystem.js";
 
+import { isQueen } from "./specialCards/queen/queenSystem.js";
+
 export function createSiege() {
   const siege = {
     left: [],
@@ -20,16 +22,9 @@ export function createSiege() {
 }
 
 export function isValidLane(siege, lane) {
-  const validLanes = [
-    "left",
-    "center",
-    "right",
-  ];
+  const validLanes = ["left", "center", "right"];
 
-  return (
-    validLanes.includes(lane) &&
-    Array.isArray(siege[lane])
-  );
+  return validLanes.includes(lane) && Array.isArray(siege[lane]);
 }
 
 export function setSiegeSpecialState(siege, specialState) {
@@ -93,15 +88,9 @@ export function compareLaneAttack(
   playerASpecialState = null,
   playerBSpecialState = null,
 ) {
-  const playerAAttack = getLaneAttackValue(
-    playerALane,
-    playerASpecialState,
-  );
+  const playerAAttack = getLaneAttackValue(playerALane, playerASpecialState);
 
-  const playerBAttack = getLaneAttackValue(
-    playerBLane,
-    playerBSpecialState,
-  );
+  const playerBAttack = getLaneAttackValue(playerBLane, playerBSpecialState);
 
   if (playerAAttack > playerBAttack) {
     return "playerA";
@@ -201,15 +190,10 @@ export function areSiegeSpecialsCancelled(playerA, playerB) {
     return false;
   }
 
-  if (
-    isJack(playerASpecial) &&
-    isJack(playerBSpecial)
-  ) {
-    const playerAMode =
-      playerA.siege.specialState?.mode;
+  if (isJack(playerASpecial) && isJack(playerBSpecial)) {
+    const playerAMode = playerA.siege.specialState?.mode;
 
-    const playerBMode =
-      playerB.siege.specialState?.mode;
+    const playerBMode = playerB.siege.specialState?.mode;
 
     return (
       playerAMode === JACK_MODES.DISRUPTION &&
@@ -282,15 +266,20 @@ export function isSiegeSweep(player, opponent, laneResults, playerKey) {
   return canResolveSiegeSpecial(player, opponent, laneResults, playerKey);
 }
 
-export function getSweepSpecialSuit(player, opponent, laneResults, playerKey) {
-  if (!isSiegeSweep(player, opponent, laneResults, playerKey)) {
+export function getSweepSpecialSuit(
+  player,
+  opponent,
+  siegeResults,
+  playerResult,
+) {
+  if (!canResolveSiegeSpecial(player, opponent, siegeResults, playerResult)) {
     return null;
   }
 
   const special = getSiegeSpecial(player);
 
-  if (special === null) {
-    return null;
+  if (isQueen(special) && player.siege.specialState?.card === special) {
+    return player.siege.specialState.declaredSuit;
   }
 
   return special.suit;

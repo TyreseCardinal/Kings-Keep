@@ -10,6 +10,10 @@ import {
 
 import { isQueen } from "./specialCards/queen/queenSystem.js";
 
+import {
+  PHASES,
+} from "./phaseSystem.js";
+
 export function createSiege() {
   const siege = {
     left: [],
@@ -21,10 +25,32 @@ export function createSiege() {
   return siege;
 }
 
-export function isValidLane(siege, lane) {
-  const validLanes = ["left", "center", "right"];
+export function isValidLane(
+  siege,
+  lane,
+  phase = PHASES.NORMAL_SIEGE,
+) {
+  const validLanes = [
+    "left",
+    "center",
+    "right",
+  ];
 
-  return validLanes.includes(lane) && Array.isArray(siege[lane]);
+  if (
+    !validLanes.includes(lane) ||
+    !Array.isArray(siege[lane])
+  ) {
+    return false;
+  }
+
+  if (
+    phase === PHASES.LAST_STAND ||
+    phase === PHASES.ENDGAME
+  ) {
+    return lane === "center";
+  }
+
+  return true;
 }
 
 export function setSiegeSpecialState(siege, specialState) {
@@ -33,8 +59,19 @@ export function setSiegeSpecialState(siege, specialState) {
   return siege.specialState;
 }
 
-export function canPlayToSiege(player, card, lane) {
-  if (!isValidLane(player.siege, lane)) {
+export function canPlayToSiege(
+  player,
+  card,
+  lane,
+  phase = PHASES.NORMAL_SIEGE,
+) {
+  if (
+    !isValidLane(
+      player.siege,
+      lane,
+      phase,
+    )
+  ) {
     return false;
   }
 
@@ -42,11 +79,24 @@ export function canPlayToSiege(player, card, lane) {
     return false;
   }
 
-  if (isSiegeSpecialCard(card) && hasSpecialInSiege(player.siege)) {
+  if (
+    phase === PHASES.LAST_STAND ||
+    phase === PHASES.ENDGAME
+  ) {
+    return card.type === "number";
+  }
+
+  if (
+    isSiegeSpecialCard(card) &&
+    hasSpecialInSiege(player.siege)
+  ) {
     return false;
   }
 
-  return card.type === "number" || isSiegeSpecialCard(card);
+  return (
+    card.type === "number" ||
+    isSiegeSpecialCard(card)
+  );
 }
 
 export function playSiegeCard(player, card, lane) {

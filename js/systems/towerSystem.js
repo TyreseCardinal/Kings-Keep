@@ -4,8 +4,28 @@ import {
   isWallDestroyed,
 } from "./wallSystem.js";
 
+import {
+  getExposedKingLayer,
+} from "./kingSystem.js";
+
 export function getActiveWall(player) {
   return player.tower[0];
+}
+
+export function getActiveDefense(player) {
+  if (!player) return;
+
+  const activeTowerCard = getActiveWall(player);
+
+  if (activeTowerCard?.type === "number") {
+    return activeTowerCard;
+  }
+
+  const exposedKingLayer = getExposedKingLayer(
+    player.kingState,
+  );
+
+  return exposedKingLayer?.card;
 }
 
 export function getHiddenWalls(player) {

@@ -10,7 +10,22 @@ import {
   destroyFortification,
 } from "./fortificationSystem.js";
 
-export function canConvert(activeWall, card) {
+import {
+  PHASES,
+} from "./phaseSystem.js";
+
+export function canConvert(
+  activeWall,
+  card,
+  phase = PHASES.NORMAL_SIEGE,
+) {
+  if (
+    phase === PHASES.LAST_STAND ||
+    phase === PHASES.ENDGAME
+  ) {
+    return false;
+  }
+
   if (!activeWall || !card) {
     return false;
   }
@@ -19,7 +34,9 @@ export function canConvert(activeWall, card) {
     return false;
   }
 
-  return activeWall.card.suit === card.suit;
+  return (
+    activeWall.card.suit === card.suit
+  );
 }
 
 export function convertWall(
@@ -27,31 +44,45 @@ export function convertWall(
   activeWall,
   card,
   deadPile,
+  phase = PHASES.NORMAL_SIEGE,
 ) {
-  if (!canConvert(activeWall, card)) {
+  if (
+    !canConvert(
+      activeWall,
+      card,
+      phase,
+    )
+  ) {
     return;
   }
 
   const cardInHand = player.hand.find(
-    (handCard) => handCard.id === card.id,
+    (handCard) =>
+      handCard.id === card.id,
   );
 
   if (!cardInHand) {
     return;
   }
 
-  if (activeWall.fortification !== null) {
+  if (
+    activeWall.fortification !== null
+  ) {
     destroyFortification(
       activeWall,
       deadPile,
     );
   }
 
-  const oldWallCard = activeWall.card;
+  const oldWallCard =
+    activeWall.card;
 
-  const oldWallIndex = player.tower.findIndex(
-    (towerCard) => towerCard.id === oldWallCard.id,
-  );
+  const oldWallIndex =
+    player.tower.findIndex(
+      (towerCard) =>
+        towerCard.id ===
+        oldWallCard.id,
+    );
 
   if (oldWallIndex === -1) {
     return;
@@ -69,9 +100,10 @@ export function convertWall(
     card.id,
   );
 
-  const newWallCard = player.tower[
-    player.tower.length - 1
-  ];
+  const newWallCard =
+    player.tower[
+      player.tower.length - 1
+    ];
 
   player.tower.pop();
 

@@ -1,9 +1,14 @@
 import { createCard } from "../systems/cardSystem.js";
+
 import { createPlayer } from "../systems/playerSystem.js";
 
-import { createWallState } from "../systems/wallSystem.js";
+import {
+  createWallState,
+} from "../systems/wallSystem.js";
 
-import { resolveSiegeAgainstWall } from "../systems/siegeResolutionSystem.js";
+import {
+  resolveSiegeAgainstWall,
+} from "../systems/siegeResolutionSystem.js";
 
 import {
   fortifyWall,
@@ -12,7 +17,17 @@ import {
 import {
   createSiege,
   setSiegeSpecialState,
+  resolveSiegeLanes,
+  getFinalSiegeDamage,
 } from "../systems/siegeSystem.js";
+
+import {
+  createKingState,
+} from "../systems/kingSystem.js";
+
+import {
+  getActiveDefense,
+} from "../systems/towerSystem.js";
 
 import {
   JACK_MODES,
@@ -30,6 +45,14 @@ const playerB = createPlayer("playerB");
 
 const deadPile = [];
 
+const playerAActiveWall = createCard("hearts", "6");
+const playerAKing = createCard("spades", "king");
+
+playerA.tower.push(
+  playerAActiveWall,
+  playerAKing,
+);
+
 const tenHearts = createCard("hearts", "10");
 const aceHearts = createCard("hearts", "ace");
 const nineHearts = createCard("hearts", "9");
@@ -44,7 +67,7 @@ const fourDiamonds = createCard("diamonds", "4");
 playerB.siege.left.push(fiveClubs);
 playerB.siege.right.push(fourDiamonds);
 
-const firstWallCard = createCard("hearts", "7");
+const firstWallCard = createCard("diamonds", "7");
 const secondWallCard = createCard("clubs", "4");
 const thirdWallCard = createCard("spades", "8");
 const kingCard = createCard("diamonds", "king");
@@ -70,7 +93,7 @@ console.log("Siege Resolution Results:", result.siegeResults);
 console.log("Final Siege Damage:", result.finalDamage);
 
 console.log(
-  "Damage Calculated Against Original Hearts Wall:",
+  "Damage Repeated From Player A Own Active Wall:",
   result.finalDamage === 38,
 );
 
@@ -109,6 +132,21 @@ const partialPlayerA = createPlayer("playerA");
 const partialPlayerB = createPlayer("playerB");
 
 const partialDeadPile = [];
+
+const partialPlayerAActiveWall = createCard(
+  "hearts",
+  "8",
+);
+
+const partialPlayerAKing = createCard(
+  "clubs",
+  "king",
+);
+
+partialPlayerA.tower.push(
+  partialPlayerAActiveWall,
+  partialPlayerAKing,
+);
 
 const sixHearts = createCard("hearts", "6");
 const partialAceHearts = createCard("hearts", "ace");
@@ -188,6 +226,21 @@ const kingPlayerA = createPlayer("playerA");
 const kingPlayerB = createPlayer("playerB");
 
 const kingDeadPile = [];
+
+const kingPlayerAActiveWall = createCard(
+  "hearts",
+  "8",
+);
+
+const kingPlayerAKing = createCard(
+  "clubs",
+  "king",
+);
+
+kingPlayerA.tower.push(
+  kingPlayerAActiveWall,
+  kingPlayerAKing,
+);
 
 const kingTenHearts = createCard("hearts", "10");
 const kingAceHearts = createCard("hearts", "ace");
@@ -270,8 +323,22 @@ const jackResolverKing = createCard(
   "king",
 );
 
+const jackResolverPlayerActiveWall = createCard(
+  "clubs",
+  "6",
+);
+
+const jackResolverPlayerKing = createCard(
+  "diamonds",
+  "king",
+);
+
 const jackResolverPlayer = {
   siege: createSiege(),
+  tower: [
+    jackResolverPlayerActiveWall,
+    jackResolverPlayerKing,
+  ],
 };
 
 const jackResolverOpponent = {
@@ -377,4 +444,176 @@ console.log(
   "Jack Resolver Wall Survived:",
   jackResolverResult.finalWallState ===
     jackResolverWall,
+);
+
+// ---------------------------------------------
+// Suit Repetition Uses Attacker's Own Active Wall
+// Opponent's matching Wall must not cause repeat
+// ---------------------------------------------
+
+const ownershipPlayerA = createPlayer("playerA");
+const ownershipPlayerB = createPlayer("playerB");
+const ownershipDeadPile = [];
+
+const ownershipPlayerAWall = createCard(
+  "spades",
+  "8",
+);
+
+const ownershipPlayerAKing = createCard(
+  "clubs",
+  "king",
+);
+
+ownershipPlayerA.tower.push(
+  ownershipPlayerAWall,
+  ownershipPlayerAKing,
+);
+
+const ownershipPlayerBWall = createCard(
+  "hearts",
+  "10",
+);
+
+const ownershipPlayerBKing = createCard(
+  "diamonds",
+  "king",
+);
+
+ownershipPlayerB.tower.push(
+  ownershipPlayerBWall,
+  ownershipPlayerBKing,
+);
+
+const ownershipAttackOne = createCard(
+  "hearts",
+  "6",
+);
+
+const ownershipAttackTwo = createCard(
+  "hearts",
+  "5",
+);
+
+const ownershipDefenseOne = createCard(
+  "clubs",
+  "2",
+);
+
+const ownershipDefenseTwo = createCard(
+  "diamonds",
+  "3",
+);
+
+ownershipPlayerA.siege.left.push(
+  ownershipAttackOne,
+);
+
+ownershipPlayerA.siege.center.push(
+  ownershipAttackTwo,
+);
+
+ownershipPlayerB.siege.left.push(
+  ownershipDefenseOne,
+);
+
+ownershipPlayerB.siege.center.push(
+  ownershipDefenseTwo,
+);
+
+const ownershipWallState = createWallState(
+  ownershipPlayerBWall,
+);
+
+const ownershipResult = resolveSiegeAgainstWall(
+  ownershipPlayerA,
+  ownershipPlayerB,
+  ownershipWallState,
+  ownershipDeadPile,
+  "playerA",
+);
+
+console.log(
+  "Opponent Matching Wall Does Not Cause Repetition:",
+  ownershipResult.finalDamage === 11,
+);
+
+// ---------------------------------------------
+// King Active Defense Suit Repetition
+// ---------------------------------------------
+
+const kingRepetitionPlayer =
+  createPlayer("kingRepetitionPlayer");
+
+const kingRepetitionOpponent =
+  createPlayer("kingRepetitionOpponent");
+
+const kingRepetitionKing =
+  createCard("hearts", "king");
+
+kingRepetitionPlayer.tower.push(
+  kingRepetitionKing,
+);
+
+kingRepetitionPlayer.kingState =
+  createKingState(
+    kingRepetitionKing,
+  );
+
+const kingRepeatLeft =
+  createCard("hearts", "8");
+
+const kingRepeatCenter =
+  createCard("hearts", "10");
+
+const opponentLeft =
+  createCard("clubs", "2");
+
+const opponentCenter =
+  createCard("diamonds", "3");
+
+kingRepetitionPlayer.siege.left.push(
+  kingRepeatLeft,
+);
+
+kingRepetitionPlayer.siege.center.push(
+  kingRepeatCenter,
+);
+
+kingRepetitionOpponent.siege.left.push(
+  opponentLeft,
+);
+
+kingRepetitionOpponent.siege.center.push(
+  opponentCenter,
+);
+
+const kingRepetitionResults =
+  resolveSiegeLanes(
+    kingRepetitionPlayer,
+    kingRepetitionOpponent,
+  );
+
+const kingActiveDefense =
+  getActiveDefense(
+    kingRepetitionPlayer,
+  );
+
+const kingRepetitionDamage =
+  getFinalSiegeDamage(
+    kingRepetitionPlayer,
+    kingRepetitionOpponent,
+    kingRepetitionResults,
+    "playerA",
+    kingActiveDefense,
+  );
+
+console.log(
+  "King Is Repetition Active Defense:",
+  kingActiveDefense === kingRepetitionKing,
+);
+
+console.log(
+  "Exposed King Suit Causes Repetition:",
+  kingRepetitionDamage === 36,
 );

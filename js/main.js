@@ -36,6 +36,10 @@ import {
   createWallState,
 } from "./systems/wallSystem.js";
 
+import {
+  createKingState,
+} from "./systems/kingSystem.js";
+
 // DECK SYSTEM FUNCTIONS
 
 // Create Deck
@@ -106,7 +110,31 @@ moveCards(
   playerBTower.length,
 );
 
+// Create King States
+
+playerA.kingState = createKingState(
+  playerA.tower[
+    playerA.tower.length - 1
+  ],
+);
+
+playerB.kingState = createKingState(
+  playerB.tower[
+    playerB.tower.length - 1
+  ],
+);
+
 // Draw Starting Hands
+
+drawStartingHand(
+  playerA,
+  drawPile,
+);
+
+drawStartingHand(
+  playerB,
+  drawPile,
+);
 
 drawStartingHand(
   playerA,
@@ -174,4 +202,28 @@ console.log(
 console.log(
   "Player B Wall State:",
   playerBWallState,
+);
+
+console.log(
+  "Player A Tower King Matches King State:",
+  playerA.tower[
+    playerA.tower.length - 1
+  ] === playerA.kingState.card,
+);
+
+console.log(
+  "Player B Tower King Matches King State:",
+  playerB.tower[
+    playerB.tower.length - 1
+  ] === playerB.kingState.card,
+);
+
+console.log(
+  "Player A King HP:",
+  playerA.kingState.currentHp,
+);
+
+console.log(
+  "Player B King HP:",
+  playerB.kingState.currentHp,
 );

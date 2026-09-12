@@ -3,13 +3,41 @@ import {
   moveCardFromProperty,
 } from "./cardLifecycleSystem.js";
 
-export function canFortify(wall, card) {
-  return wall.card.baseValue === card.baseValue && wall.fortification === null;
+import {
+  PHASES,
+} from "./phaseSystem.js";
+
+export function canFortify(
+  wall,
+  card,
+  phase = PHASES.NORMAL_SIEGE,
+) {
+  if (
+    phase === PHASES.LAST_STAND ||
+    phase === PHASES.ENDGAME
+  ) {
+    return false;
+  }
+
+  return (
+    wall.card.baseValue === card.baseValue &&
+    wall.fortification === null
+  );
 }
 
-
-export function fortifyWall(player, wall, card) {
-  if (!canFortify(wall, card)) {
+export function fortifyWall(
+  player,
+  wall,
+  card,
+  phase = PHASES.NORMAL_SIEGE,
+) {
+  if (
+    !canFortify(
+      wall,
+      card,
+      phase,
+    )
+  ) {
     return;
   }
 
@@ -18,19 +46,21 @@ export function fortifyWall(player, wall, card) {
     hpContribution: card.baseValue,
   };
 
-  const movedCard = moveCardByIdToProperty(
-    player.hand,
-    wall.fortification,
-    "card",
-    card.id,
-  );
+  const movedCard =
+    moveCardByIdToProperty(
+      player.hand,
+      wall.fortification,
+      "card",
+      card.id,
+    );
 
   if (!movedCard) {
     wall.fortification = null;
     return;
   }
 
-  wall.currentHp += wall.fortification.hpContribution;
+  wall.currentHp +=
+    wall.fortification.hpContribution;
 
   return movedCard;
 }
@@ -39,9 +69,16 @@ export function hasFortification(wall) {
   return wall.fortification !== null;
 }
 
-export function destroyFortification(wall, deadPile) {
+export function destroyFortification(
+  wall,
+  deadPile,
+) {
   if (hasFortification(wall)) {
-    moveCardFromProperty(wall.fortification, "card", deadPile);
+    moveCardFromProperty(
+      wall.fortification,
+      "card",
+      deadPile,
+    );
 
     wall.fortification = null;
   }

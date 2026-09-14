@@ -42,20 +42,38 @@ export function isKingActive(player) {
   return player.tower[0].rank === "king";
 }
 
-export function advanceTower(player, wall, deadPile) {
+export function advanceTower(
+  player,
+  wall,
+  deadPile,
+) {
   if (!isWallDestroyed(wall)) {
     return;
   }
 
-  destroyWall(player, wall, deadPile);
+  destroyWall(
+    player,
+    wall,
+    deadPile,
+  );
 
+  // The destroyed Wall is no longer
+  // the player's active Wall state.
+  player.activeWallState = null;
+
+  // If the King is now exposed,
+  // there is no active Wall state.
   if (isKingActive(player)) {
     return;
   }
 
-  const newActiveWall = getActiveWall(player);
+  const newActiveWall =
+    getActiveWall(player);
 
-  const newWallState = createWallState(newActiveWall);
+  player.activeWallState =
+    createWallState(
+      newActiveWall,
+    );
 
-  return newWallState;
+  return player.activeWallState;
 }

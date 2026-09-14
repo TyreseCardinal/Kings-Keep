@@ -7,8 +7,23 @@ import {
 } from "../systems/wallSystem.js";
 
 import {
+  createSortieState,
+  getSortieProgress,
+  recordSortieWin,
+} from "../systems/sortieSystem.js";
+
+import {
   resolveSiegeAgainstWall,
+  resolveLastStandSortieResult,
+  resolveSiegeAgainstKing,
+  resolveLastStandSiege,
 } from "../systems/siegeResolutionSystem.js";
+
+import {
+  getCombatPhase,
+  getLastStandPlayer,
+  PHASES,
+} from "../systems/phaseSystem.js";
 
 import {
   fortifyWall,
@@ -23,6 +38,8 @@ import {
 
 import {
   createKingState,
+  reinforceKing,
+  getExposedKingLayer,
 } from "../systems/kingSystem.js";
 
 import {
@@ -616,4 +633,917 @@ console.log(
 console.log(
   "Exposed King Suit Causes Repetition:",
   kingRepetitionDamage === 36,
+);
+
+// ---------------------------------------------
+// LAST STAND SORTIE RESOLUTION INTEGRATION
+// ---------------------------------------------
+
+console.log(
+  "----- LAST STAND SORTIE RESOLUTION TESTS -----",
+);
+
+// ---------------------------------------------
+// WIN
+// ---------------------------------------------
+
+const sortieWinPlayer =
+  createPlayer("sortieWinPlayer");
+
+const sortieWinOpponent =
+  createPlayer("sortieWinOpponent");
+
+const sortieWinKing =
+  createCard("hearts", "king");
+
+const sortieWinOpponentWall =
+  createCard("clubs", "5");
+
+const sortieWinOpponentKing =
+  createCard("spades", "king");
+
+sortieWinPlayer.tower.push(
+  sortieWinKing,
+);
+
+sortieWinOpponent.tower.push(
+  sortieWinOpponentWall,
+  sortieWinOpponentKing,
+);
+
+const sortieWinState =
+  createSortieState(
+    sortieWinPlayer,
+    sortieWinPlayer,
+    sortieWinOpponent,
+  );
+
+const sortieWinningCard =
+  createCard("diamonds", "8");
+
+sortieWinPlayer.siege.center.push(
+  sortieWinningCard,
+);
+
+const sortieWinResults = {
+  left: "tie",
+  center: "playerA",
+  right: "tie",
+};
+
+const sortieWinDeadPile = [];
+
+console.log(
+  "Sortie Win Resolves:",
+  resolveLastStandSortieResult(
+    sortieWinState,
+    sortieWinPlayer,
+    sortieWinResults,
+    "playerA",
+    sortieWinDeadPile,
+  ),
+);
+
+console.log(
+  "Sortie Win Adds One Progress:",
+  getSortieProgress(
+    sortieWinState,
+  ) === 1,
+);
+
+console.log(
+  "Sortie Winning Card Entered Reserve:",
+  sortieWinState.cards[0] ===
+    sortieWinningCard,
+);
+
+console.log(
+  "Sortie Winning Card Left Center:",
+  sortieWinPlayer.siege.center.length === 0,
+);
+
+console.log(
+  "Sortie Win Does Not Use Dead Pile:",
+  sortieWinDeadPile.length === 0,
+);
+
+// ---------------------------------------------
+// TIE
+// ---------------------------------------------
+
+const sortieTieCard =
+  createCard("clubs", "7");
+
+sortieWinPlayer.siege.center.push(
+  sortieTieCard,
+);
+
+const sortieTieResults = {
+  left: "tie",
+  center: "tie",
+  right: "tie",
+};
+
+console.log(
+  "Sortie Tie Resolves:",
+  resolveLastStandSortieResult(
+    sortieWinState,
+    sortieWinPlayer,
+    sortieTieResults,
+    "playerA",
+    sortieWinDeadPile,
+  ),
+);
+
+console.log(
+  "Sortie Tie Preserves Progress:",
+  getSortieProgress(
+    sortieWinState,
+  ) === 1,
+);
+
+console.log(
+  "Sortie Tie Does Not Reserve Tie Card:",
+  sortieWinState.cards.includes(
+    sortieTieCard,
+  ) === false,
+);
+
+// Remove the tied card manually because
+// Siege cleanup is not integrated here yet.
+sortieWinPlayer.siege.center.length = 0;
+
+// ---------------------------------------------
+// LOSS
+// ---------------------------------------------
+
+const sortieLossCard =
+  createCard("spades", "4");
+
+sortieWinPlayer.siege.center.push(
+  sortieLossCard,
+);
+
+const sortieLossResults = {
+  left: "tie",
+  center: "playerB",
+  right: "tie",
+};
+
+console.log(
+  "Sortie Loss Resolves:",
+  resolveLastStandSortieResult(
+    sortieWinState,
+    sortieWinPlayer,
+    sortieLossResults,
+    "playerA",
+    sortieWinDeadPile,
+  ),
+);
+
+console.log(
+  "Sortie Loss Resets Progress:",
+  getSortieProgress(
+    sortieWinState,
+  ) === 0,
+);
+
+console.log(
+  "Sortie Loss Sends Reserved Win To Dead Pile:",
+  sortieWinDeadPile.includes(
+    sortieWinningCard,
+  ),
+);
+
+console.log(
+  "Sortie Remains Active After Loss:",
+  sortieWinState.active === true,
+);
+
+// ---------------------------------------------
+// THIRD WIN → IMMEDIATE REBUILD
+// ---------------------------------------------
+
+const thirdWinPlayer =
+  createPlayer("thirdWinPlayer");
+
+const thirdWinOpponent =
+  createPlayer("thirdWinOpponent");
+
+const thirdWinKing =
+  createCard("hearts", "king");
+
+const thirdWinOpponentWall =
+  createCard("clubs", "6");
+
+const thirdWinOpponentKing =
+  createCard("diamonds", "king");
+
+thirdWinPlayer.tower.push(
+  thirdWinKing,
+);
+
+thirdWinOpponent.tower.push(
+  thirdWinOpponentWall,
+  thirdWinOpponentKing,
+);
+
+const thirdWinState =
+  createSortieState(
+    thirdWinPlayer,
+    thirdWinPlayer,
+    thirdWinOpponent,
+  );
+
+const thirdWinCardOne =
+  createCard("clubs", "5");
+
+const thirdWinCardTwo =
+  createCard("diamonds", "7");
+
+const thirdWinCardThree =
+  createCard("spades", "9");
+
+thirdWinPlayer.siege.center.push(
+  thirdWinCardOne,
+);
+
+resolveLastStandSortieResult(
+  thirdWinState,
+  thirdWinPlayer,
+  {
+    left: "tie",
+    center: "playerA",
+    right: "tie",
+  },
+  "playerA",
+  [],
+);
+
+thirdWinPlayer.siege.center.push(
+  thirdWinCardTwo,
+);
+
+resolveLastStandSortieResult(
+  thirdWinState,
+  thirdWinPlayer,
+  {
+    left: "tie",
+    center: "playerA",
+    right: "tie",
+  },
+  "playerA",
+  [],
+);
+
+console.log(
+  "Third-Win Test Starts With Two Progress:",
+  getSortieProgress(
+    thirdWinState,
+  ) === 2,
+);
+
+thirdWinPlayer.siege.center.push(
+  thirdWinCardThree,
+);
+
+const thirdWinDeadPile = [];
+
+console.log(
+  "Third Sortie Win Resolves:",
+  resolveLastStandSortieResult(
+    thirdWinState,
+    thirdWinPlayer,
+    {
+      left: "tie",
+      center: "playerA",
+      right: "tie",
+    },
+    "playerA",
+    thirdWinDeadPile,
+  ),
+);
+
+console.log(
+  "Third Win Immediately Rebuilt Tower:",
+  thirdWinPlayer.tower.length === 4,
+);
+
+console.log(
+  "Third Win Became Active Wall:",
+  thirdWinPlayer.tower[0] ===
+    thirdWinCardThree,
+);
+
+console.log(
+  "Second Win Became Middle Wall:",
+  thirdWinPlayer.tower[1] ===
+    thirdWinCardTwo,
+);
+
+console.log(
+  "First Win Became Inner Wall:",
+  thirdWinPlayer.tower[2] ===
+    thirdWinCardOne,
+);
+
+console.log(
+  "Original King Preserved After Integrated Rebuild:",
+  thirdWinPlayer.tower[3] ===
+    thirdWinKing,
+);
+
+console.log(
+  "Integrated Rebuild Emptied Reserve:",
+  thirdWinState.cards.length === 0,
+);
+
+console.log(
+  "Integrated Rebuild Ended Sortie:",
+  thirdWinState.active === false,
+);
+
+// ---------------------------------------------
+// KING TARGET SIEGE RESOLUTION
+// ---------------------------------------------
+
+console.log(
+  "----- KING TARGET SIEGE RESOLUTION TESTS -----",
+);
+
+// ---------------------------------------------
+// NONLETHAL REINFORCEMENT DAMAGE
+// ---------------------------------------------
+
+const kingDamageAttacker =
+  createPlayer("kingDamageAttacker");
+
+const kingDamageDefender =
+  createPlayer("kingDamageDefender");
+
+const kingDamageAttackerKing =
+  createCard("hearts", "king");
+
+const kingDamageDefenderKing =
+  createCard("clubs", "king");
+
+const kingDamageReinforcement =
+  createCard("spades", "king");
+
+kingDamageAttacker.tower.push(
+  kingDamageAttackerKing,
+);
+
+kingDamageDefender.tower.push(
+  kingDamageDefenderKing,
+);
+
+kingDamageAttacker.kingState =
+  createKingState(
+    kingDamageAttackerKing,
+  );
+
+kingDamageDefender.kingState =
+  createKingState(
+    kingDamageDefenderKing,
+  );
+
+reinforceKing(
+  kingDamageDefender.kingState,
+  kingDamageReinforcement,
+);
+
+const nonlethalAttack =
+  createCard("diamonds", "6");
+
+kingDamageAttacker.siege.center.push(
+  nonlethalAttack,
+);
+
+const nonlethalOpponentCard =
+  createCard("hearts", "3");
+
+kingDamageDefender.siege.center.push(
+  nonlethalOpponentCard,
+);
+
+const nonlethalDeadPile = [];
+const nonlethalRemovedPile = [];
+
+const nonlethalResult =
+  resolveSiegeAgainstKing(
+    kingDamageAttacker,
+    kingDamageDefender,
+    nonlethalDeadPile,
+    nonlethalRemovedPile,
+    "playerA",
+  );
+
+console.log(
+  "Nonlethal King Siege Resolved:",
+  nonlethalResult !== undefined,
+);
+
+console.log(
+  "Nonlethal King Siege Damage Is 6:",
+  nonlethalResult.finalDamage === 6,
+);
+
+console.log(
+  "Reinforcement Reduced To 9 HP:",
+  getExposedKingLayer(
+    kingDamageDefender.kingState,
+  ).currentHp === 9,
+);
+
+console.log(
+  "Nonlethal Reinforcement Not Destroyed:",
+  nonlethalResult
+    .reinforcementDestroyed === false,
+);
+
+console.log(
+  "Nonlethal Reinforcement Not Removed From Game:",
+  nonlethalRemovedPile.length === 0,
+);
+
+console.log(
+  "Original King Preserved At 15 HP:",
+  kingDamageDefender
+    .kingState.currentHp === 15,
+);
+
+// ---------------------------------------------
+// LETHAL REINFORCEMENT DAMAGE
+// ---------------------------------------------
+
+const lethalReinforcementAttacker =
+  createPlayer(
+    "lethalReinforcementAttacker",
+  );
+
+const lethalReinforcementDefender =
+  createPlayer(
+    "lethalReinforcementDefender",
+  );
+
+const lethalAttackerKing =
+  createCard("diamonds", "king");
+
+const lethalDefenderKing =
+  createCard("clubs", "king");
+
+const lethalReinforcement =
+  createCard("spades", "king");
+
+lethalReinforcementAttacker.tower.push(
+  lethalAttackerKing,
+);
+
+lethalReinforcementDefender.tower.push(
+  lethalDefenderKing,
+);
+
+lethalReinforcementAttacker.kingState =
+  createKingState(
+    lethalAttackerKing,
+  );
+
+lethalReinforcementDefender.kingState =
+  createKingState(
+    lethalDefenderKing,
+  );
+
+reinforceKing(
+  lethalReinforcementDefender.kingState,
+  lethalReinforcement,
+);
+
+// Give the exposed Reinforcement only 4 HP
+// so we can prove excess damage does not
+// overflow into the Original King.
+getExposedKingLayer(
+  lethalReinforcementDefender.kingState,
+).currentHp = 4;
+
+const lethalReinforcementAttack =
+  createCard("hearts", "9");
+
+const lethalReinforcementDefense =
+  createCard("clubs", "2");
+
+lethalReinforcementAttacker
+  .siege.center.push(
+    lethalReinforcementAttack,
+  );
+
+lethalReinforcementDefender
+  .siege.center.push(
+    lethalReinforcementDefense,
+  );
+
+const lethalReinforcementDeadPile = [];
+const lethalReinforcementRemovedPile = [];
+
+const lethalReinforcementResult =
+  resolveSiegeAgainstKing(
+    lethalReinforcementAttacker,
+    lethalReinforcementDefender,
+    lethalReinforcementDeadPile,
+    lethalReinforcementRemovedPile,
+    "playerA",
+  );
+
+console.log(
+  "Lethal Reinforcement Siege Resolved:",
+  lethalReinforcementResult !==
+    undefined,
+);
+
+console.log(
+  "Lethal Reinforcement Damage Is 9:",
+  lethalReinforcementResult
+    .finalDamage === 9,
+);
+
+console.log(
+  "Reinforcement Destroyed:",
+  lethalReinforcementResult
+    .reinforcementDestroyed === true,
+);
+
+console.log(
+  "Destroyed Reinforcement Removed From King Layer:",
+  lethalReinforcementDefender
+    .kingState.reinforcements
+    .length === 0,
+);
+
+console.log(
+  "Destroyed Reinforcement Entered Removed From Game Pile:",
+  lethalReinforcementRemovedPile[0] ===
+    lethalReinforcement,
+);
+
+console.log(
+  "Excess Damage Did Not Hit Original King:",
+  lethalReinforcementDefender
+    .kingState.currentHp === 15,
+);
+
+console.log(
+  "Original King Became Exposed:",
+  getExposedKingLayer(
+    lethalReinforcementDefender.kingState,
+  ) ===
+    lethalReinforcementDefender.kingState,
+);
+
+console.log(
+  "Destroying Reinforcement Did Not Defeat Original King:",
+  lethalReinforcementResult
+    .originalKingDefeated === false,
+);
+
+// ---------------------------------------------
+// LETHAL ORIGINAL KING DAMAGE
+// ---------------------------------------------
+
+const lethalKingAttacker =
+  createPlayer("lethalKingAttacker");
+
+const lethalKingDefender =
+  createPlayer("lethalKingDefender");
+
+const lethalKingAttackerKing =
+  createCard("spades", "king");
+
+const lethalOriginalKing =
+  createCard("hearts", "king");
+
+lethalKingAttacker.tower.push(
+  lethalKingAttackerKing,
+);
+
+lethalKingDefender.tower.push(
+  lethalOriginalKing,
+);
+
+lethalKingAttacker.kingState =
+  createKingState(
+    lethalKingAttackerKing,
+  );
+
+lethalKingDefender.kingState =
+  createKingState(
+    lethalOriginalKing,
+  );
+
+lethalKingDefender.kingState.currentHp = 5;
+
+const lethalKingAttack =
+  createCard("clubs", "8");
+
+const lethalKingDefense =
+  createCard("diamonds", "3");
+
+lethalKingAttacker.siege.center.push(
+  lethalKingAttack,
+);
+
+lethalKingDefender.siege.center.push(
+  lethalKingDefense,
+);
+
+const lethalKingDeadPile = [];
+const lethalKingRemovedPile = [];
+
+const lethalKingResult =
+  resolveSiegeAgainstKing(
+    lethalKingAttacker,
+    lethalKingDefender,
+    lethalKingDeadPile,
+    lethalKingRemovedPile,
+    "playerA",
+  );
+
+console.log(
+  "Original King Siege Resolved:",
+  lethalKingResult !== undefined,
+);
+
+console.log(
+  "Original King Damage Is 8:",
+  lethalKingResult.finalDamage === 8,
+);
+
+console.log(
+  "Original King Reduced To Zero:",
+  lethalKingDefender
+    .kingState.currentHp === 0,
+);
+
+console.log(
+  "Original King Defeat Detected:",
+  lethalKingResult
+    .originalKingDefeated === true,
+);
+
+console.log(
+  "Original King Not Removed From Game:",
+  lethalKingRemovedPile.length === 0,
+);
+
+console.log(
+  "Original King Card Remains In Tower:",
+  lethalKingDefender.tower[0] ===
+    lethalOriginalKing,
+);
+
+// ---------------------------------------------
+// LAST STAND ROLE REVERSAL
+// ---------------------------------------------
+
+console.log(
+  "----- LAST STAND ROLE REVERSAL TESTS -----",
+);
+
+const reversalPlayerA =
+  createPlayer("reversalPlayerA");
+
+const reversalPlayerB =
+  createPlayer("reversalPlayerB");
+
+const reversalKingA =
+  createCard("hearts", "king");
+
+const reversalKingB =
+  createCard("clubs", "king");
+
+const reversalFinalWallB =
+  createCard("spades", "4");
+
+reversalPlayerA.tower.push(
+  reversalKingA,
+);
+
+reversalPlayerB.tower.push(
+  reversalFinalWallB,
+  reversalKingB,
+);
+
+reversalPlayerB.activeWallState =
+  createWallState(
+    reversalFinalWallB,
+  );
+
+  reversalPlayerB.activeWallState.currentHp = 2;
+
+reversalPlayerA.kingState =
+  createKingState(
+    reversalKingA,
+  );
+
+reversalPlayerB.kingState =
+  createKingState(
+    reversalKingB,
+  );
+
+const reversalSortie =
+  createSortieState(
+    reversalPlayerA,
+    reversalPlayerA,
+    reversalPlayerB,
+  );
+
+const reversalWinOne =
+  createCard("clubs", "5");
+
+const reversalWinTwo =
+  createCard("diamonds", "6");
+
+const reversalWinThree =
+  createCard("hearts", "9");
+
+// Build two existing Sortie wins manually
+// through the normal Sortie API.
+reversalPlayerA.siege.center.push(
+  reversalWinOne,
+);
+
+recordSortieWin(
+  reversalSortie,
+  reversalPlayerA,
+  reversalWinOne,
+);
+
+reversalPlayerA.siege.center.push(
+  reversalWinTwo,
+);
+
+recordSortieWin(
+  reversalSortie,
+  reversalPlayerA,
+  reversalWinTwo,
+);
+
+console.log(
+  "Role Reversal Starts In Last Stand:",
+  getCombatPhase(
+    reversalPlayerA,
+    reversalPlayerB,
+  ) === PHASES.LAST_STAND,
+);
+
+console.log(
+  "Player A Starts As Last Stand Player:",
+  getLastStandPlayer(
+    reversalPlayerA,
+    reversalPlayerB,
+  ) === reversalPlayerA,
+);
+
+console.log(
+  "Role Reversal Starts With Two Sortie Wins:",
+  reversalSortie.cards.length === 2,
+);
+
+// Third Sortie victory.
+// 9 beats 3 and also deals enough damage
+// to destroy Player B's final 4 HP Wall.
+reversalPlayerA.siege.center.push(
+  reversalWinThree,
+);
+
+const reversalDefenseCard =
+  createCard("diamonds", "3");
+
+reversalPlayerB.siege.center.push(
+  reversalDefenseCard,
+);
+
+const reversalDeadPile = [];
+const reversalRemovedPile = [];
+
+  console.log(
+  "Role Reversal Final Wall Starts Damaged:",
+  reversalPlayerB.activeWallState
+    .currentHp === 2,
+);
+
+const reversalResult =
+  resolveLastStandSiege(
+    reversalPlayerA,
+    reversalPlayerB,
+    reversalSortie,
+    reversalDeadPile,
+    reversalRemovedPile,
+  );
+
+console.log(
+  "Role Reversal Siege Resolved:",
+  reversalResult !== undefined,
+);
+
+console.log(
+  "Third Sortie Win Was Center Winner:",
+  reversalResult.centerResult ===
+    "playerA",
+);
+
+console.log(
+  "Third Win Rebuilt Player A Walls:",
+  reversalPlayerA.tower.length === 4,
+);
+
+console.log(
+  "Third Win Became Player A Active Wall:",
+  reversalPlayerA.tower[0] ===
+    reversalWinThree,
+);
+
+console.log(
+  "Second Win Became Middle Wall:",
+  reversalPlayerA.tower[1] ===
+    reversalWinTwo,
+);
+
+console.log(
+  "First Win Became Inner Wall:",
+  reversalPlayerA.tower[2] ===
+    reversalWinOne,
+);
+
+console.log(
+  "Player A Original King Preserved:",
+  reversalPlayerA.tower[3] ===
+    reversalKingA,
+);
+
+console.log(
+  "Successful Sortie Became Inactive:",
+  reversalSortie.active === false,
+);
+
+console.log(
+  "Successful Sortie Reserve Is Empty:",
+  reversalSortie.cards.length === 0,
+);
+
+console.log(
+  "Player B Final Wall Was Destroyed:",
+  reversalPlayerB.tower.length === 1,
+);
+
+console.log(
+  "Player B King Is Now Exposed:",
+  reversalPlayerB.tower[0] ===
+    reversalKingB,
+);
+
+console.log(
+  "Player B Active Wall State Cleared:",
+  reversalPlayerB.activeWallState ===
+    null,
+);
+
+console.log(
+  "Resulting Phase Is Still Last Stand:",
+  reversalResult.phaseAfterResolution ===
+    PHASES.LAST_STAND,
+);
+
+console.log(
+  "Board State Confirms Last Stand:",
+  getCombatPhase(
+    reversalPlayerA,
+    reversalPlayerB,
+  ) === PHASES.LAST_STAND,
+);
+
+console.log(
+  "Last Stand Role Reversed To Player B:",
+  getLastStandPlayer(
+    reversalPlayerA,
+    reversalPlayerB,
+  ) === reversalPlayerB,
+);
+
+console.log(
+  "Role Reversal Did Not Enter Endgame:",
+  reversalResult.phaseAfterResolution !==
+    PHASES.ENDGAME,
+);
+
+console.log(
+  "Successful Sortie Was Not Cancelled:",
+  reversalDeadPile.includes(
+    reversalWinOne,
+  ) === false &&
+  reversalDeadPile.includes(
+    reversalWinTwo,
+  ) === false &&
+  reversalDeadPile.includes(
+    reversalWinThree,
+  ) === false,
 );

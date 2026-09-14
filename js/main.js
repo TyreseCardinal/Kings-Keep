@@ -162,11 +162,11 @@ const playerBActiveWall = getActiveWall(
 
 // Create Active Wall States
 
-const playerAWallState = createWallState(
+playerA.activeWallState = createWallState(
   playerAActiveWall,
 );
 
-const playerBWallState = createWallState(
+playerB.activeWallState = createWallState(
   playerBActiveWall,
 );
 
@@ -191,8 +191,9 @@ console.log(
 
 console.log(
   "Player A Wall State:",
-  playerAWallState,
+  playerA.activeWallState,
 );
+
 
 console.log(
   "Player B:",
@@ -201,7 +202,7 @@ console.log(
 
 console.log(
   "Player B Wall State:",
-  playerBWallState,
+  playerB.activeWallState,
 );
 
 console.log(

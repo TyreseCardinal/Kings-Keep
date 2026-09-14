@@ -20,6 +20,7 @@ export function createPlayer(id) {
     tower: [],
     siege: createSiege(),
     kingState: null,
+    activeWallState: null,
   };
 
   return player;

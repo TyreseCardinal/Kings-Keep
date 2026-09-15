@@ -342,6 +342,7 @@ const disruptionTargetWall = createWallState(disruptionTargetWallCard);
 
 const disruptionFortificationPlayer = {
   hand: [disruptionFortificationCard],
+  activeWallState: disruptionTargetWall,
 };
 
 const disruptionDeadPile = [];
@@ -399,6 +400,7 @@ const damagedJackWall = createWallState(damagedJackWallCard);
 
 const damagedJackDefender = {
   hand: [damagedJackFortificationCard],
+  activeWallState: damagedJackWall,
 };
 
 const damagedJackDeadPile = [];

@@ -146,15 +146,32 @@ const fortificationCard = createCard("spades", "7");
 const fortifiedConvertCard = createCard("diamonds", "3");
 
 const fortifiedConvertPlayer = {
-  hand: [fortificationCard, fortifiedConvertCard],
-  tower: [fortifiedOldWallCard, fortifiedHiddenWallCard, fortifiedKing],
+  hand: [
+    fortificationCard,
+    fortifiedConvertCard,
+  ],
+  tower: [
+    fortifiedOldWallCard,
+    fortifiedHiddenWallCard,
+    fortifiedKing,
+  ],
 };
 
 const fortifiedConvertDeadPile = [];
 
-const fortifiedOldWallState = createWallState(fortifiedOldWallCard);
+const fortifiedOldWallState =
+  createWallState(
+    fortifiedOldWallCard,
+  );
 
-fortifyWall(fortifiedConvertPlayer, fortifiedOldWallState, fortificationCard);
+fortifiedConvertPlayer.activeWallState =
+  fortifiedOldWallState;
+
+fortifyWall(
+  fortifiedConvertPlayer,
+  fortifiedOldWallState,
+  fortificationCard,
+);
 
 console.log("Fortified Convert HP Before:", fortifiedOldWallState.currentHp);
 

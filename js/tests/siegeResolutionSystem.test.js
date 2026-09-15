@@ -2,9 +2,7 @@ import { createCard } from "../systems/cardSystem.js";
 
 import { createPlayer } from "../systems/playerSystem.js";
 
-import {
-  createWallState,
-} from "../systems/wallSystem.js";
+import { createWallState } from "../systems/wallSystem.js";
 
 import {
   createSortieState,
@@ -17,6 +15,7 @@ import {
   resolveLastStandSortieResult,
   resolveSiegeAgainstKing,
   resolveLastStandSiege,
+  resolveEndgameSiege,
 } from "../systems/siegeResolutionSystem.js";
 
 import {
@@ -25,9 +24,7 @@ import {
   PHASES,
 } from "../systems/phaseSystem.js";
 
-import {
-  fortifyWall,
-} from "../systems/fortificationSystem.js";
+import { fortifyWall } from "../systems/fortificationSystem.js";
 
 import {
   createSiege,
@@ -42,9 +39,7 @@ import {
   getExposedKingLayer,
 } from "../systems/kingSystem.js";
 
-import {
-  getActiveDefense,
-} from "../systems/towerSystem.js";
+import { getActiveDefense } from "../systems/towerSystem.js";
 
 import {
   JACK_MODES,
@@ -65,10 +60,7 @@ const deadPile = [];
 const playerAActiveWall = createCard("hearts", "6");
 const playerAKing = createCard("spades", "king");
 
-playerA.tower.push(
-  playerAActiveWall,
-  playerAKing,
-);
+playerA.tower.push(playerAActiveWall, playerAKing);
 
 const tenHearts = createCard("hearts", "10");
 const aceHearts = createCard("hearts", "ace");
@@ -150,20 +142,11 @@ const partialPlayerB = createPlayer("playerB");
 
 const partialDeadPile = [];
 
-const partialPlayerAActiveWall = createCard(
-  "hearts",
-  "8",
-);
+const partialPlayerAActiveWall = createCard("hearts", "8");
 
-const partialPlayerAKing = createCard(
-  "clubs",
-  "king",
-);
+const partialPlayerAKing = createCard("clubs", "king");
 
-partialPlayerA.tower.push(
-  partialPlayerAActiveWall,
-  partialPlayerAKing,
-);
+partialPlayerA.tower.push(partialPlayerAActiveWall, partialPlayerAKing);
 
 const sixHearts = createCard("hearts", "6");
 const partialAceHearts = createCard("hearts", "ace");
@@ -244,20 +227,11 @@ const kingPlayerB = createPlayer("playerB");
 
 const kingDeadPile = [];
 
-const kingPlayerAActiveWall = createCard(
-  "hearts",
-  "8",
-);
+const kingPlayerAActiveWall = createCard("hearts", "8");
 
-const kingPlayerAKing = createCard(
-  "clubs",
-  "king",
-);
+const kingPlayerAKing = createCard("clubs", "king");
 
-kingPlayerA.tower.push(
-  kingPlayerAActiveWall,
-  kingPlayerAKing,
-);
+kingPlayerA.tower.push(kingPlayerAActiveWall, kingPlayerAKing);
 
 const kingTenHearts = createCard("hearts", "10");
 const kingAceHearts = createCard("hearts", "ace");
@@ -310,92 +284,50 @@ console.log(
 // before numbered Wall damage
 // --------------------------------------------------
 
-const jackResolverNumber = createCard(
-  "clubs",
-  "5",
-);
+const jackResolverNumber = createCard("clubs", "5");
 
-const jackResolverJack = createCard(
-  "hearts",
-  "jack",
-);
+const jackResolverJack = createCard("hearts", "jack");
 
-const jackResolverOpponentNumber = createCard(
-  "diamonds",
-  "3",
-);
+const jackResolverOpponentNumber = createCard("diamonds", "3");
 
-const jackResolverWallCard = createCard(
-  "spades",
-  "7",
-);
+const jackResolverWallCard = createCard("spades", "7");
 
-const jackResolverFortificationCard = createCard(
-  "clubs",
-  "7",
-);
+const jackResolverFortificationCard = createCard("clubs", "7");
 
-const jackResolverKing = createCard(
-  "hearts",
-  "king",
-);
+const jackResolverKing = createCard("hearts", "king");
 
-const jackResolverPlayerActiveWall = createCard(
-  "clubs",
-  "6",
-);
+const jackResolverPlayerActiveWall = createCard("clubs", "6");
 
-const jackResolverPlayerKing = createCard(
-  "diamonds",
-  "king",
-);
+const jackResolverPlayerKing = createCard("diamonds", "king");
 
 const jackResolverPlayer = {
   siege: createSiege(),
-  tower: [
-    jackResolverPlayerActiveWall,
-    jackResolverPlayerKing,
-  ],
+  tower: [jackResolverPlayerActiveWall, jackResolverPlayerKing],
 };
 
 const jackResolverOpponent = {
   siege: createSiege(),
-  tower: [
-    jackResolverWallCard,
-    jackResolverKing,
-  ],
+  tower: [jackResolverWallCard, jackResolverKing],
 };
 
-jackResolverPlayer.siege.left.push(
-  jackResolverNumber,
-);
+jackResolverPlayer.siege.left.push(jackResolverNumber);
 
-jackResolverPlayer.siege.center.push(
-  jackResolverJack,
-);
+jackResolverPlayer.siege.center.push(jackResolverJack);
 
-jackResolverOpponent.siege.left.push(
-  jackResolverOpponentNumber,
-);
+jackResolverOpponent.siege.left.push(jackResolverOpponentNumber);
 
 const jackResolverState = createJackState(
   jackResolverJack,
   JACK_MODES.DISRUPTION,
 );
 
-setSiegeSpecialState(
-  jackResolverPlayer.siege,
-  jackResolverState,
-);
+setSiegeSpecialState(jackResolverPlayer.siege, jackResolverState);
 
-const jackResolverWall = createWallState(
-  jackResolverWallCard,
-);
+const jackResolverWall = createWallState(jackResolverWallCard);
 
 const jackResolverDefender = {
-  hand: [
-    jackResolverFortificationCard,
-  ],
+  hand: [jackResolverFortificationCard],
+  activeWallState: jackResolverWall,
 };
 
 const jackResolverDeadPile = [];
@@ -406,29 +338,22 @@ fortifyWall(
   jackResolverFortificationCard,
 );
 
-console.log(
-  "Jack Resolver Starting Wall HP:",
-  jackResolverWall.currentHp,
-);
+console.log("Jack Resolver Starting Wall HP:", jackResolverWall.currentHp);
 
 console.log(
   "Jack Resolver Starts Fortified:",
   jackResolverWall.fortification !== null,
 );
 
-const jackResolverResult =
-  resolveSiegeAgainstWall(
-    jackResolverPlayer,
-    jackResolverOpponent,
-    jackResolverWall,
-    jackResolverDeadPile,
-    "playerA",
-  );
-
-console.log(
-  "Jack Resolver Final Damage:",
-  jackResolverResult.finalDamage,
+const jackResolverResult = resolveSiegeAgainstWall(
+  jackResolverPlayer,
+  jackResolverOpponent,
+  jackResolverWall,
+  jackResolverDeadPile,
+  "playerA",
 );
+
+console.log("Jack Resolver Final Damage:", jackResolverResult.finalDamage);
 
 console.log(
   "Jack Resolver Numbered Damage Is 5:",
@@ -442,25 +367,16 @@ console.log(
 
 console.log(
   "Jack Resolver Fortification Entered Dead Pile:",
-  jackResolverDeadPile.includes(
-    jackResolverFortificationCard,
-  ),
+  jackResolverDeadPile.includes(jackResolverFortificationCard),
 );
 
-console.log(
-  "Jack Resolver Wall HP After:",
-  jackResolverWall.currentHp,
-);
+console.log("Jack Resolver Wall HP After:", jackResolverWall.currentHp);
 
-console.log(
-  "Jack Resolved Before Damage:",
-  jackResolverWall.currentHp === 2,
-);
+console.log("Jack Resolved Before Damage:", jackResolverWall.currentHp === 2);
 
 console.log(
   "Jack Resolver Wall Survived:",
-  jackResolverResult.finalWallState ===
-    jackResolverWall,
+  jackResolverResult.finalWallState === jackResolverWall,
 );
 
 // ---------------------------------------------
@@ -472,75 +388,35 @@ const ownershipPlayerA = createPlayer("playerA");
 const ownershipPlayerB = createPlayer("playerB");
 const ownershipDeadPile = [];
 
-const ownershipPlayerAWall = createCard(
-  "spades",
-  "8",
-);
+const ownershipPlayerAWall = createCard("spades", "8");
 
-const ownershipPlayerAKing = createCard(
-  "clubs",
-  "king",
-);
+const ownershipPlayerAKing = createCard("clubs", "king");
 
-ownershipPlayerA.tower.push(
-  ownershipPlayerAWall,
-  ownershipPlayerAKing,
-);
+ownershipPlayerA.tower.push(ownershipPlayerAWall, ownershipPlayerAKing);
 
-const ownershipPlayerBWall = createCard(
-  "hearts",
-  "10",
-);
+const ownershipPlayerBWall = createCard("hearts", "10");
 
-const ownershipPlayerBKing = createCard(
-  "diamonds",
-  "king",
-);
+const ownershipPlayerBKing = createCard("diamonds", "king");
 
-ownershipPlayerB.tower.push(
-  ownershipPlayerBWall,
-  ownershipPlayerBKing,
-);
+ownershipPlayerB.tower.push(ownershipPlayerBWall, ownershipPlayerBKing);
 
-const ownershipAttackOne = createCard(
-  "hearts",
-  "6",
-);
+const ownershipAttackOne = createCard("hearts", "6");
 
-const ownershipAttackTwo = createCard(
-  "hearts",
-  "5",
-);
+const ownershipAttackTwo = createCard("hearts", "5");
 
-const ownershipDefenseOne = createCard(
-  "clubs",
-  "2",
-);
+const ownershipDefenseOne = createCard("clubs", "2");
 
-const ownershipDefenseTwo = createCard(
-  "diamonds",
-  "3",
-);
+const ownershipDefenseTwo = createCard("diamonds", "3");
 
-ownershipPlayerA.siege.left.push(
-  ownershipAttackOne,
-);
+ownershipPlayerA.siege.left.push(ownershipAttackOne);
 
-ownershipPlayerA.siege.center.push(
-  ownershipAttackTwo,
-);
+ownershipPlayerA.siege.center.push(ownershipAttackTwo);
 
-ownershipPlayerB.siege.left.push(
-  ownershipDefenseOne,
-);
+ownershipPlayerB.siege.left.push(ownershipDefenseOne);
 
-ownershipPlayerB.siege.center.push(
-  ownershipDefenseTwo,
-);
+ownershipPlayerB.siege.center.push(ownershipDefenseTwo);
 
-const ownershipWallState = createWallState(
-  ownershipPlayerBWall,
-);
+const ownershipWallState = createWallState(ownershipPlayerBWall);
 
 const ownershipResult = resolveSiegeAgainstWall(
   ownershipPlayerA,
@@ -559,71 +435,46 @@ console.log(
 // King Active Defense Suit Repetition
 // ---------------------------------------------
 
-const kingRepetitionPlayer =
-  createPlayer("kingRepetitionPlayer");
+const kingRepetitionPlayer = createPlayer("kingRepetitionPlayer");
 
-const kingRepetitionOpponent =
-  createPlayer("kingRepetitionOpponent");
+const kingRepetitionOpponent = createPlayer("kingRepetitionOpponent");
 
-const kingRepetitionKing =
-  createCard("hearts", "king");
+const kingRepetitionKing = createCard("hearts", "king");
 
-kingRepetitionPlayer.tower.push(
-  kingRepetitionKing,
+kingRepetitionPlayer.tower.push(kingRepetitionKing);
+
+kingRepetitionPlayer.kingState = createKingState(kingRepetitionKing);
+
+const kingRepeatLeft = createCard("hearts", "8");
+
+const kingRepeatCenter = createCard("hearts", "10");
+
+const opponentLeft = createCard("clubs", "2");
+
+const opponentCenter = createCard("diamonds", "3");
+
+kingRepetitionPlayer.siege.left.push(kingRepeatLeft);
+
+kingRepetitionPlayer.siege.center.push(kingRepeatCenter);
+
+kingRepetitionOpponent.siege.left.push(opponentLeft);
+
+kingRepetitionOpponent.siege.center.push(opponentCenter);
+
+const kingRepetitionResults = resolveSiegeLanes(
+  kingRepetitionPlayer,
+  kingRepetitionOpponent,
 );
 
-kingRepetitionPlayer.kingState =
-  createKingState(
-    kingRepetitionKing,
-  );
+const kingActiveDefense = getActiveDefense(kingRepetitionPlayer);
 
-const kingRepeatLeft =
-  createCard("hearts", "8");
-
-const kingRepeatCenter =
-  createCard("hearts", "10");
-
-const opponentLeft =
-  createCard("clubs", "2");
-
-const opponentCenter =
-  createCard("diamonds", "3");
-
-kingRepetitionPlayer.siege.left.push(
-  kingRepeatLeft,
+const kingRepetitionDamage = getFinalSiegeDamage(
+  kingRepetitionPlayer,
+  kingRepetitionOpponent,
+  kingRepetitionResults,
+  "playerA",
+  kingActiveDefense,
 );
-
-kingRepetitionPlayer.siege.center.push(
-  kingRepeatCenter,
-);
-
-kingRepetitionOpponent.siege.left.push(
-  opponentLeft,
-);
-
-kingRepetitionOpponent.siege.center.push(
-  opponentCenter,
-);
-
-const kingRepetitionResults =
-  resolveSiegeLanes(
-    kingRepetitionPlayer,
-    kingRepetitionOpponent,
-  );
-
-const kingActiveDefense =
-  getActiveDefense(
-    kingRepetitionPlayer,
-  );
-
-const kingRepetitionDamage =
-  getFinalSiegeDamage(
-    kingRepetitionPlayer,
-    kingRepetitionOpponent,
-    kingRepetitionResults,
-    "playerA",
-    kingActiveDefense,
-  );
 
 console.log(
   "King Is Repetition Active Defense:",
@@ -639,51 +490,35 @@ console.log(
 // LAST STAND SORTIE RESOLUTION INTEGRATION
 // ---------------------------------------------
 
-console.log(
-  "----- LAST STAND SORTIE RESOLUTION TESTS -----",
-);
+console.log("----- LAST STAND SORTIE RESOLUTION TESTS -----");
 
 // ---------------------------------------------
 // WIN
 // ---------------------------------------------
 
-const sortieWinPlayer =
-  createPlayer("sortieWinPlayer");
+const sortieWinPlayer = createPlayer("sortieWinPlayer");
 
-const sortieWinOpponent =
-  createPlayer("sortieWinOpponent");
+const sortieWinOpponent = createPlayer("sortieWinOpponent");
 
-const sortieWinKing =
-  createCard("hearts", "king");
+const sortieWinKing = createCard("hearts", "king");
 
-const sortieWinOpponentWall =
-  createCard("clubs", "5");
+const sortieWinOpponentWall = createCard("clubs", "5");
 
-const sortieWinOpponentKing =
-  createCard("spades", "king");
+const sortieWinOpponentKing = createCard("spades", "king");
 
-sortieWinPlayer.tower.push(
-  sortieWinKing,
+sortieWinPlayer.tower.push(sortieWinKing);
+
+sortieWinOpponent.tower.push(sortieWinOpponentWall, sortieWinOpponentKing);
+
+const sortieWinState = createSortieState(
+  sortieWinPlayer,
+  sortieWinPlayer,
+  sortieWinOpponent,
 );
 
-sortieWinOpponent.tower.push(
-  sortieWinOpponentWall,
-  sortieWinOpponentKing,
-);
+const sortieWinningCard = createCard("diamonds", "8");
 
-const sortieWinState =
-  createSortieState(
-    sortieWinPlayer,
-    sortieWinPlayer,
-    sortieWinOpponent,
-  );
-
-const sortieWinningCard =
-  createCard("diamonds", "8");
-
-sortieWinPlayer.siege.center.push(
-  sortieWinningCard,
-);
+sortieWinPlayer.siege.center.push(sortieWinningCard);
 
 const sortieWinResults = {
   left: "tie",
@@ -706,15 +541,12 @@ console.log(
 
 console.log(
   "Sortie Win Adds One Progress:",
-  getSortieProgress(
-    sortieWinState,
-  ) === 1,
+  getSortieProgress(sortieWinState) === 1,
 );
 
 console.log(
   "Sortie Winning Card Entered Reserve:",
-  sortieWinState.cards[0] ===
-    sortieWinningCard,
+  sortieWinState.cards[0] === sortieWinningCard,
 );
 
 console.log(
@@ -731,12 +563,9 @@ console.log(
 // TIE
 // ---------------------------------------------
 
-const sortieTieCard =
-  createCard("clubs", "7");
+const sortieTieCard = createCard("clubs", "7");
 
-sortieWinPlayer.siege.center.push(
-  sortieTieCard,
-);
+sortieWinPlayer.siege.center.push(sortieTieCard);
 
 const sortieTieResults = {
   left: "tie",
@@ -757,16 +586,12 @@ console.log(
 
 console.log(
   "Sortie Tie Preserves Progress:",
-  getSortieProgress(
-    sortieWinState,
-  ) === 1,
+  getSortieProgress(sortieWinState) === 1,
 );
 
 console.log(
   "Sortie Tie Does Not Reserve Tie Card:",
-  sortieWinState.cards.includes(
-    sortieTieCard,
-  ) === false,
+  sortieWinState.cards.includes(sortieTieCard) === false,
 );
 
 // Remove the tied card manually because
@@ -777,12 +602,9 @@ sortieWinPlayer.siege.center.length = 0;
 // LOSS
 // ---------------------------------------------
 
-const sortieLossCard =
-  createCard("spades", "4");
+const sortieLossCard = createCard("spades", "4");
 
-sortieWinPlayer.siege.center.push(
-  sortieLossCard,
-);
+sortieWinPlayer.siege.center.push(sortieLossCard);
 
 const sortieLossResults = {
   left: "tie",
@@ -803,16 +625,12 @@ console.log(
 
 console.log(
   "Sortie Loss Resets Progress:",
-  getSortieProgress(
-    sortieWinState,
-  ) === 0,
+  getSortieProgress(sortieWinState) === 0,
 );
 
 console.log(
   "Sortie Loss Sends Reserved Win To Dead Pile:",
-  sortieWinDeadPile.includes(
-    sortieWinningCard,
-  ),
+  sortieWinDeadPile.includes(sortieWinningCard),
 );
 
 console.log(
@@ -824,49 +642,33 @@ console.log(
 // THIRD WIN → IMMEDIATE REBUILD
 // ---------------------------------------------
 
-const thirdWinPlayer =
-  createPlayer("thirdWinPlayer");
+const thirdWinPlayer = createPlayer("thirdWinPlayer");
 
-const thirdWinOpponent =
-  createPlayer("thirdWinOpponent");
+const thirdWinOpponent = createPlayer("thirdWinOpponent");
 
-const thirdWinKing =
-  createCard("hearts", "king");
+const thirdWinKing = createCard("hearts", "king");
 
-const thirdWinOpponentWall =
-  createCard("clubs", "6");
+const thirdWinOpponentWall = createCard("clubs", "6");
 
-const thirdWinOpponentKing =
-  createCard("diamonds", "king");
+const thirdWinOpponentKing = createCard("diamonds", "king");
 
-thirdWinPlayer.tower.push(
-  thirdWinKing,
+thirdWinPlayer.tower.push(thirdWinKing);
+
+thirdWinOpponent.tower.push(thirdWinOpponentWall, thirdWinOpponentKing);
+
+const thirdWinState = createSortieState(
+  thirdWinPlayer,
+  thirdWinPlayer,
+  thirdWinOpponent,
 );
 
-thirdWinOpponent.tower.push(
-  thirdWinOpponentWall,
-  thirdWinOpponentKing,
-);
+const thirdWinCardOne = createCard("clubs", "5");
 
-const thirdWinState =
-  createSortieState(
-    thirdWinPlayer,
-    thirdWinPlayer,
-    thirdWinOpponent,
-  );
+const thirdWinCardTwo = createCard("diamonds", "7");
 
-const thirdWinCardOne =
-  createCard("clubs", "5");
+const thirdWinCardThree = createCard("spades", "9");
 
-const thirdWinCardTwo =
-  createCard("diamonds", "7");
-
-const thirdWinCardThree =
-  createCard("spades", "9");
-
-thirdWinPlayer.siege.center.push(
-  thirdWinCardOne,
-);
+thirdWinPlayer.siege.center.push(thirdWinCardOne);
 
 resolveLastStandSortieResult(
   thirdWinState,
@@ -880,9 +682,7 @@ resolveLastStandSortieResult(
   [],
 );
 
-thirdWinPlayer.siege.center.push(
-  thirdWinCardTwo,
-);
+thirdWinPlayer.siege.center.push(thirdWinCardTwo);
 
 resolveLastStandSortieResult(
   thirdWinState,
@@ -898,14 +698,10 @@ resolveLastStandSortieResult(
 
 console.log(
   "Third-Win Test Starts With Two Progress:",
-  getSortieProgress(
-    thirdWinState,
-  ) === 2,
+  getSortieProgress(thirdWinState) === 2,
 );
 
-thirdWinPlayer.siege.center.push(
-  thirdWinCardThree,
-);
+thirdWinPlayer.siege.center.push(thirdWinCardThree);
 
 const thirdWinDeadPile = [];
 
@@ -931,26 +727,22 @@ console.log(
 
 console.log(
   "Third Win Became Active Wall:",
-  thirdWinPlayer.tower[0] ===
-    thirdWinCardThree,
+  thirdWinPlayer.tower[0] === thirdWinCardThree,
 );
 
 console.log(
   "Second Win Became Middle Wall:",
-  thirdWinPlayer.tower[1] ===
-    thirdWinCardTwo,
+  thirdWinPlayer.tower[1] === thirdWinCardTwo,
 );
 
 console.log(
   "First Win Became Inner Wall:",
-  thirdWinPlayer.tower[2] ===
-    thirdWinCardOne,
+  thirdWinPlayer.tower[2] === thirdWinCardOne,
 );
 
 console.log(
   "Original King Preserved After Integrated Rebuild:",
-  thirdWinPlayer.tower[3] ===
-    thirdWinKing,
+  thirdWinPlayer.tower[3] === thirdWinKing,
 );
 
 console.log(
@@ -958,91 +750,58 @@ console.log(
   thirdWinState.cards.length === 0,
 );
 
-console.log(
-  "Integrated Rebuild Ended Sortie:",
-  thirdWinState.active === false,
-);
+console.log("Integrated Rebuild Ended Sortie:", thirdWinState.active === false);
 
 // ---------------------------------------------
 // KING TARGET SIEGE RESOLUTION
 // ---------------------------------------------
 
-console.log(
-  "----- KING TARGET SIEGE RESOLUTION TESTS -----",
-);
+console.log("----- KING TARGET SIEGE RESOLUTION TESTS -----");
 
 // ---------------------------------------------
 // NONLETHAL REINFORCEMENT DAMAGE
 // ---------------------------------------------
 
-const kingDamageAttacker =
-  createPlayer("kingDamageAttacker");
+const kingDamageAttacker = createPlayer("kingDamageAttacker");
 
-const kingDamageDefender =
-  createPlayer("kingDamageDefender");
+const kingDamageDefender = createPlayer("kingDamageDefender");
 
-const kingDamageAttackerKing =
-  createCard("hearts", "king");
+const kingDamageAttackerKing = createCard("hearts", "king");
 
-const kingDamageDefenderKing =
-  createCard("clubs", "king");
+const kingDamageDefenderKing = createCard("clubs", "king");
 
-const kingDamageReinforcement =
-  createCard("spades", "king");
+const kingDamageReinforcement = createCard("spades", "king");
 
-kingDamageAttacker.tower.push(
-  kingDamageAttackerKing,
-);
+kingDamageAttacker.tower.push(kingDamageAttackerKing);
 
-kingDamageDefender.tower.push(
-  kingDamageDefenderKing,
-);
+kingDamageDefender.tower.push(kingDamageDefenderKing);
 
-kingDamageAttacker.kingState =
-  createKingState(
-    kingDamageAttackerKing,
-  );
+kingDamageAttacker.kingState = createKingState(kingDamageAttackerKing);
 
-kingDamageDefender.kingState =
-  createKingState(
-    kingDamageDefenderKing,
-  );
+kingDamageDefender.kingState = createKingState(kingDamageDefenderKing);
 
-reinforceKing(
-  kingDamageDefender.kingState,
-  kingDamageReinforcement,
-);
+reinforceKing(kingDamageDefender.kingState, kingDamageReinforcement);
 
-const nonlethalAttack =
-  createCard("diamonds", "6");
+const nonlethalAttack = createCard("diamonds", "6");
 
-kingDamageAttacker.siege.center.push(
-  nonlethalAttack,
-);
+kingDamageAttacker.siege.center.push(nonlethalAttack);
 
-const nonlethalOpponentCard =
-  createCard("hearts", "3");
+const nonlethalOpponentCard = createCard("hearts", "3");
 
-kingDamageDefender.siege.center.push(
-  nonlethalOpponentCard,
-);
+kingDamageDefender.siege.center.push(nonlethalOpponentCard);
 
 const nonlethalDeadPile = [];
 const nonlethalRemovedPile = [];
 
-const nonlethalResult =
-  resolveSiegeAgainstKing(
-    kingDamageAttacker,
-    kingDamageDefender,
-    nonlethalDeadPile,
-    nonlethalRemovedPile,
-    "playerA",
-  );
-
-console.log(
-  "Nonlethal King Siege Resolved:",
-  nonlethalResult !== undefined,
+const nonlethalResult = resolveSiegeAgainstKing(
+  kingDamageAttacker,
+  kingDamageDefender,
+  nonlethalDeadPile,
+  nonlethalRemovedPile,
+  "playerA",
 );
+
+console.log("Nonlethal King Siege Resolved:", nonlethalResult !== undefined);
 
 console.log(
   "Nonlethal King Siege Damage Is 6:",
@@ -1051,15 +810,12 @@ console.log(
 
 console.log(
   "Reinforcement Reduced To 9 HP:",
-  getExposedKingLayer(
-    kingDamageDefender.kingState,
-  ).currentHp === 9,
+  getExposedKingLayer(kingDamageDefender.kingState).currentHp === 9,
 );
 
 console.log(
   "Nonlethal Reinforcement Not Destroyed:",
-  nonlethalResult
-    .reinforcementDestroyed === false,
+  nonlethalResult.reinforcementDestroyed === false,
 );
 
 console.log(
@@ -1069,224 +825,151 @@ console.log(
 
 console.log(
   "Original King Preserved At 15 HP:",
-  kingDamageDefender
-    .kingState.currentHp === 15,
+  kingDamageDefender.kingState.currentHp === 15,
 );
 
 // ---------------------------------------------
 // LETHAL REINFORCEMENT DAMAGE
 // ---------------------------------------------
 
-const lethalReinforcementAttacker =
-  createPlayer(
-    "lethalReinforcementAttacker",
-  );
+const lethalReinforcementAttacker = createPlayer("lethalReinforcementAttacker");
 
-const lethalReinforcementDefender =
-  createPlayer(
-    "lethalReinforcementDefender",
-  );
+const lethalReinforcementDefender = createPlayer("lethalReinforcementDefender");
 
-const lethalAttackerKing =
-  createCard("diamonds", "king");
+const lethalAttackerKing = createCard("diamonds", "king");
 
-const lethalDefenderKing =
-  createCard("clubs", "king");
+const lethalDefenderKing = createCard("clubs", "king");
 
-const lethalReinforcement =
-  createCard("spades", "king");
+const lethalReinforcement = createCard("spades", "king");
 
-lethalReinforcementAttacker.tower.push(
-  lethalAttackerKing,
-);
+lethalReinforcementAttacker.tower.push(lethalAttackerKing);
 
-lethalReinforcementDefender.tower.push(
-  lethalDefenderKing,
-);
+lethalReinforcementDefender.tower.push(lethalDefenderKing);
 
-lethalReinforcementAttacker.kingState =
-  createKingState(
-    lethalAttackerKing,
-  );
+lethalReinforcementAttacker.kingState = createKingState(lethalAttackerKing);
 
-lethalReinforcementDefender.kingState =
-  createKingState(
-    lethalDefenderKing,
-  );
+lethalReinforcementDefender.kingState = createKingState(lethalDefenderKing);
 
-reinforceKing(
-  lethalReinforcementDefender.kingState,
-  lethalReinforcement,
-);
+reinforceKing(lethalReinforcementDefender.kingState, lethalReinforcement);
 
 // Give the exposed Reinforcement only 4 HP
 // so we can prove excess damage does not
 // overflow into the Original King.
-getExposedKingLayer(
-  lethalReinforcementDefender.kingState,
-).currentHp = 4;
+getExposedKingLayer(lethalReinforcementDefender.kingState).currentHp = 4;
 
-const lethalReinforcementAttack =
-  createCard("hearts", "9");
+const lethalReinforcementAttack = createCard("hearts", "9");
 
-const lethalReinforcementDefense =
-  createCard("clubs", "2");
+const lethalReinforcementDefense = createCard("clubs", "2");
 
-lethalReinforcementAttacker
-  .siege.center.push(
-    lethalReinforcementAttack,
-  );
+lethalReinforcementAttacker.siege.center.push(lethalReinforcementAttack);
 
-lethalReinforcementDefender
-  .siege.center.push(
-    lethalReinforcementDefense,
-  );
+lethalReinforcementDefender.siege.center.push(lethalReinforcementDefense);
 
 const lethalReinforcementDeadPile = [];
 const lethalReinforcementRemovedPile = [];
 
-const lethalReinforcementResult =
-  resolveSiegeAgainstKing(
-    lethalReinforcementAttacker,
-    lethalReinforcementDefender,
-    lethalReinforcementDeadPile,
-    lethalReinforcementRemovedPile,
-    "playerA",
-  );
+const lethalReinforcementResult = resolveSiegeAgainstKing(
+  lethalReinforcementAttacker,
+  lethalReinforcementDefender,
+  lethalReinforcementDeadPile,
+  lethalReinforcementRemovedPile,
+  "playerA",
+);
 
 console.log(
   "Lethal Reinforcement Siege Resolved:",
-  lethalReinforcementResult !==
-    undefined,
+  lethalReinforcementResult !== undefined,
 );
 
 console.log(
   "Lethal Reinforcement Damage Is 9:",
-  lethalReinforcementResult
-    .finalDamage === 9,
+  lethalReinforcementResult.finalDamage === 9,
 );
 
 console.log(
   "Reinforcement Destroyed:",
-  lethalReinforcementResult
-    .reinforcementDestroyed === true,
+  lethalReinforcementResult.reinforcementDestroyed === true,
 );
 
 console.log(
   "Destroyed Reinforcement Removed From King Layer:",
-  lethalReinforcementDefender
-    .kingState.reinforcements
-    .length === 0,
+  lethalReinforcementDefender.kingState.reinforcements.length === 0,
 );
 
 console.log(
   "Destroyed Reinforcement Entered Removed From Game Pile:",
-  lethalReinforcementRemovedPile[0] ===
-    lethalReinforcement,
+  lethalReinforcementRemovedPile[0] === lethalReinforcement,
 );
 
 console.log(
   "Excess Damage Did Not Hit Original King:",
-  lethalReinforcementDefender
-    .kingState.currentHp === 15,
+  lethalReinforcementDefender.kingState.currentHp === 15,
 );
 
 console.log(
   "Original King Became Exposed:",
-  getExposedKingLayer(
-    lethalReinforcementDefender.kingState,
-  ) ===
+  getExposedKingLayer(lethalReinforcementDefender.kingState) ===
     lethalReinforcementDefender.kingState,
 );
 
 console.log(
   "Destroying Reinforcement Did Not Defeat Original King:",
-  lethalReinforcementResult
-    .originalKingDefeated === false,
+  lethalReinforcementResult.originalKingDefeated === false,
 );
 
 // ---------------------------------------------
 // LETHAL ORIGINAL KING DAMAGE
 // ---------------------------------------------
 
-const lethalKingAttacker =
-  createPlayer("lethalKingAttacker");
+const lethalKingAttacker = createPlayer("lethalKingAttacker");
 
-const lethalKingDefender =
-  createPlayer("lethalKingDefender");
+const lethalKingDefender = createPlayer("lethalKingDefender");
 
-const lethalKingAttackerKing =
-  createCard("spades", "king");
+const lethalKingAttackerKing = createCard("spades", "king");
 
-const lethalOriginalKing =
-  createCard("hearts", "king");
+const lethalOriginalKing = createCard("hearts", "king");
 
-lethalKingAttacker.tower.push(
-  lethalKingAttackerKing,
-);
+lethalKingAttacker.tower.push(lethalKingAttackerKing);
 
-lethalKingDefender.tower.push(
-  lethalOriginalKing,
-);
+lethalKingDefender.tower.push(lethalOriginalKing);
 
-lethalKingAttacker.kingState =
-  createKingState(
-    lethalKingAttackerKing,
-  );
+lethalKingAttacker.kingState = createKingState(lethalKingAttackerKing);
 
-lethalKingDefender.kingState =
-  createKingState(
-    lethalOriginalKing,
-  );
+lethalKingDefender.kingState = createKingState(lethalOriginalKing);
 
 lethalKingDefender.kingState.currentHp = 5;
 
-const lethalKingAttack =
-  createCard("clubs", "8");
+const lethalKingAttack = createCard("clubs", "8");
 
-const lethalKingDefense =
-  createCard("diamonds", "3");
+const lethalKingDefense = createCard("diamonds", "3");
 
-lethalKingAttacker.siege.center.push(
-  lethalKingAttack,
-);
+lethalKingAttacker.siege.center.push(lethalKingAttack);
 
-lethalKingDefender.siege.center.push(
-  lethalKingDefense,
-);
+lethalKingDefender.siege.center.push(lethalKingDefense);
 
 const lethalKingDeadPile = [];
 const lethalKingRemovedPile = [];
 
-const lethalKingResult =
-  resolveSiegeAgainstKing(
-    lethalKingAttacker,
-    lethalKingDefender,
-    lethalKingDeadPile,
-    lethalKingRemovedPile,
-    "playerA",
-  );
-
-console.log(
-  "Original King Siege Resolved:",
-  lethalKingResult !== undefined,
+const lethalKingResult = resolveSiegeAgainstKing(
+  lethalKingAttacker,
+  lethalKingDefender,
+  lethalKingDeadPile,
+  lethalKingRemovedPile,
+  "playerA",
 );
 
-console.log(
-  "Original King Damage Is 8:",
-  lethalKingResult.finalDamage === 8,
-);
+console.log("Original King Siege Resolved:", lethalKingResult !== undefined);
+
+console.log("Original King Damage Is 8:", lethalKingResult.finalDamage === 8);
 
 console.log(
   "Original King Reduced To Zero:",
-  lethalKingDefender
-    .kingState.currentHp === 0,
+  lethalKingDefender.kingState.currentHp === 0,
 );
 
 console.log(
   "Original King Defeat Detected:",
-  lethalKingResult
-    .originalKingDefeated === true,
+  lethalKingResult.originalKingDefeated === true,
 );
 
 console.log(
@@ -1296,111 +979,67 @@ console.log(
 
 console.log(
   "Original King Card Remains In Tower:",
-  lethalKingDefender.tower[0] ===
-    lethalOriginalKing,
+  lethalKingDefender.tower[0] === lethalOriginalKing,
 );
 
 // ---------------------------------------------
 // LAST STAND ROLE REVERSAL
 // ---------------------------------------------
 
-console.log(
-  "----- LAST STAND ROLE REVERSAL TESTS -----",
+console.log("----- LAST STAND ROLE REVERSAL TESTS -----");
+
+const reversalPlayerA = createPlayer("reversalPlayerA");
+
+const reversalPlayerB = createPlayer("reversalPlayerB");
+
+const reversalKingA = createCard("hearts", "king");
+
+const reversalKingB = createCard("clubs", "king");
+
+const reversalFinalWallB = createCard("spades", "4");
+
+reversalPlayerA.tower.push(reversalKingA);
+
+reversalPlayerB.tower.push(reversalFinalWallB, reversalKingB);
+
+reversalPlayerB.activeWallState = createWallState(reversalFinalWallB);
+
+reversalPlayerB.activeWallState.currentHp = 2;
+
+reversalPlayerA.kingState = createKingState(reversalKingA);
+
+reversalPlayerB.kingState = createKingState(reversalKingB);
+
+const reversalSortie = createSortieState(
+  reversalPlayerA,
+  reversalPlayerA,
+  reversalPlayerB,
 );
 
-const reversalPlayerA =
-  createPlayer("reversalPlayerA");
+const reversalWinOne = createCard("clubs", "5");
 
-const reversalPlayerB =
-  createPlayer("reversalPlayerB");
+const reversalWinTwo = createCard("diamonds", "6");
 
-const reversalKingA =
-  createCard("hearts", "king");
-
-const reversalKingB =
-  createCard("clubs", "king");
-
-const reversalFinalWallB =
-  createCard("spades", "4");
-
-reversalPlayerA.tower.push(
-  reversalKingA,
-);
-
-reversalPlayerB.tower.push(
-  reversalFinalWallB,
-  reversalKingB,
-);
-
-reversalPlayerB.activeWallState =
-  createWallState(
-    reversalFinalWallB,
-  );
-
-  reversalPlayerB.activeWallState.currentHp = 2;
-
-reversalPlayerA.kingState =
-  createKingState(
-    reversalKingA,
-  );
-
-reversalPlayerB.kingState =
-  createKingState(
-    reversalKingB,
-  );
-
-const reversalSortie =
-  createSortieState(
-    reversalPlayerA,
-    reversalPlayerA,
-    reversalPlayerB,
-  );
-
-const reversalWinOne =
-  createCard("clubs", "5");
-
-const reversalWinTwo =
-  createCard("diamonds", "6");
-
-const reversalWinThree =
-  createCard("hearts", "9");
+const reversalWinThree = createCard("hearts", "9");
 
 // Build two existing Sortie wins manually
 // through the normal Sortie API.
-reversalPlayerA.siege.center.push(
-  reversalWinOne,
-);
+reversalPlayerA.siege.center.push(reversalWinOne);
 
-recordSortieWin(
-  reversalSortie,
-  reversalPlayerA,
-  reversalWinOne,
-);
+recordSortieWin(reversalSortie, reversalPlayerA, reversalWinOne);
 
-reversalPlayerA.siege.center.push(
-  reversalWinTwo,
-);
+reversalPlayerA.siege.center.push(reversalWinTwo);
 
-recordSortieWin(
-  reversalSortie,
-  reversalPlayerA,
-  reversalWinTwo,
-);
+recordSortieWin(reversalSortie, reversalPlayerA, reversalWinTwo);
 
 console.log(
   "Role Reversal Starts In Last Stand:",
-  getCombatPhase(
-    reversalPlayerA,
-    reversalPlayerB,
-  ) === PHASES.LAST_STAND,
+  getCombatPhase(reversalPlayerA, reversalPlayerB) === PHASES.LAST_STAND,
 );
 
 console.log(
   "Player A Starts As Last Stand Player:",
-  getLastStandPlayer(
-    reversalPlayerA,
-    reversalPlayerB,
-  ) === reversalPlayerA,
+  getLastStandPlayer(reversalPlayerA, reversalPlayerB) === reversalPlayerA,
 );
 
 console.log(
@@ -1411,44 +1050,33 @@ console.log(
 // Third Sortie victory.
 // 9 beats 3 and also deals enough damage
 // to destroy Player B's final 4 HP Wall.
-reversalPlayerA.siege.center.push(
-  reversalWinThree,
-);
+reversalPlayerA.siege.center.push(reversalWinThree);
 
-const reversalDefenseCard =
-  createCard("diamonds", "3");
+const reversalDefenseCard = createCard("diamonds", "3");
 
-reversalPlayerB.siege.center.push(
-  reversalDefenseCard,
-);
+reversalPlayerB.siege.center.push(reversalDefenseCard);
 
 const reversalDeadPile = [];
 const reversalRemovedPile = [];
 
-  console.log(
-  "Role Reversal Final Wall Starts Damaged:",
-  reversalPlayerB.activeWallState
-    .currentHp === 2,
-);
-
-const reversalResult =
-  resolveLastStandSiege(
-    reversalPlayerA,
-    reversalPlayerB,
-    reversalSortie,
-    reversalDeadPile,
-    reversalRemovedPile,
-  );
-
 console.log(
-  "Role Reversal Siege Resolved:",
-  reversalResult !== undefined,
+  "Role Reversal Final Wall Starts Damaged:",
+  reversalPlayerB.activeWallState.currentHp === 2,
 );
+
+const reversalResult = resolveLastStandSiege(
+  reversalPlayerA,
+  reversalPlayerB,
+  reversalSortie,
+  reversalDeadPile,
+  reversalRemovedPile,
+);
+
+console.log("Role Reversal Siege Resolved:", reversalResult !== undefined);
 
 console.log(
   "Third Sortie Win Was Center Winner:",
-  reversalResult.centerResult ===
-    "playerA",
+  reversalResult.centerResult === "playerA",
 );
 
 console.log(
@@ -1458,26 +1086,22 @@ console.log(
 
 console.log(
   "Third Win Became Player A Active Wall:",
-  reversalPlayerA.tower[0] ===
-    reversalWinThree,
+  reversalPlayerA.tower[0] === reversalWinThree,
 );
 
 console.log(
   "Second Win Became Middle Wall:",
-  reversalPlayerA.tower[1] ===
-    reversalWinTwo,
+  reversalPlayerA.tower[1] === reversalWinTwo,
 );
 
 console.log(
   "First Win Became Inner Wall:",
-  reversalPlayerA.tower[2] ===
-    reversalWinOne,
+  reversalPlayerA.tower[2] === reversalWinOne,
 );
 
 console.log(
   "Player A Original King Preserved:",
-  reversalPlayerA.tower[3] ===
-    reversalKingA,
+  reversalPlayerA.tower[3] === reversalKingA,
 );
 
 console.log(
@@ -1497,53 +1121,101 @@ console.log(
 
 console.log(
   "Player B King Is Now Exposed:",
-  reversalPlayerB.tower[0] ===
-    reversalKingB,
+  reversalPlayerB.tower[0] === reversalKingB,
 );
 
 console.log(
   "Player B Active Wall State Cleared:",
-  reversalPlayerB.activeWallState ===
-    null,
+  reversalPlayerB.activeWallState === null,
 );
 
 console.log(
   "Resulting Phase Is Still Last Stand:",
-  reversalResult.phaseAfterResolution ===
-    PHASES.LAST_STAND,
+  reversalResult.phaseAfterResolution === PHASES.LAST_STAND,
 );
 
 console.log(
   "Board State Confirms Last Stand:",
-  getCombatPhase(
-    reversalPlayerA,
-    reversalPlayerB,
-  ) === PHASES.LAST_STAND,
+  getCombatPhase(reversalPlayerA, reversalPlayerB) === PHASES.LAST_STAND,
 );
 
 console.log(
   "Last Stand Role Reversed To Player B:",
-  getLastStandPlayer(
-    reversalPlayerA,
-    reversalPlayerB,
-  ) === reversalPlayerB,
+  getLastStandPlayer(reversalPlayerA, reversalPlayerB) === reversalPlayerB,
 );
 
 console.log(
   "Role Reversal Did Not Enter Endgame:",
-  reversalResult.phaseAfterResolution !==
-    PHASES.ENDGAME,
+  reversalResult.phaseAfterResolution !== PHASES.ENDGAME,
 );
 
 console.log(
   "Successful Sortie Was Not Cancelled:",
-  reversalDeadPile.includes(
-    reversalWinOne,
-  ) === false &&
-  reversalDeadPile.includes(
-    reversalWinTwo,
-  ) === false &&
-  reversalDeadPile.includes(
-    reversalWinThree,
-  ) === false,
+  reversalDeadPile.includes(reversalWinOne) === false &&
+    reversalDeadPile.includes(reversalWinTwo) === false &&
+    reversalDeadPile.includes(reversalWinThree) === false,
+);
+
+// ---------------------------------------------
+// ENDGAME COMBAT RESOLUTION
+// ---------------------------------------------
+
+console.log("----- ENDGAME COMBAT RESOLUTION TESTS -----");
+
+const endgamePlayerA = createPlayer("endgamePlayerA");
+
+const endgamePlayerB = createPlayer("endgamePlayerB");
+
+const endgameKingA = createCard("hearts", "king");
+
+const endgameKingB = createCard("clubs", "king");
+
+endgamePlayerA.tower.push(endgameKingA);
+
+endgamePlayerB.tower.push(endgameKingB);
+
+endgamePlayerA.kingState = createKingState(endgameKingA);
+
+endgamePlayerB.kingState = createKingState(endgameKingB);
+
+// Start Player B's Original King low enough
+// for this Siege to prove the defeat signal.
+endgamePlayerB.kingState.currentHp = 8;
+
+const endgameAttack = createCard("hearts", "8");
+
+const endgameDefense = createCard("diamonds", "3");
+
+endgamePlayerA.siege.center.push(endgameAttack);
+
+endgamePlayerB.siege.center.push(endgameDefense);
+
+const endgameRemovedPile = [];
+
+console.log(
+  "Endgame Test Starts In Endgame:",
+  getCombatPhase(endgamePlayerA, endgamePlayerB) === PHASES.ENDGAME,
+);
+
+const endgameResult = resolveEndgameSiege(
+  endgamePlayerA,
+  endgamePlayerB,
+  endgameRemovedPile,
+);
+
+console.log("Endgame Siege Resolved:", endgameResult !== undefined);
+
+console.log(
+  "Endgame Center Winner Is Player A:",
+  endgameResult?.centerResult === "playerA",
+);
+
+console.log(
+  "Endgame Winner Identified:",
+  endgameResult?.winner === endgamePlayerA,
+);
+
+console.log(
+  "Endgame Loser Identified:",
+  endgameResult?.loser === endgamePlayerB,
 );

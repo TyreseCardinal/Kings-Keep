@@ -65,15 +65,6 @@ export function convertWall(
     return;
   }
 
-  if (
-    activeWall.fortification !== null
-  ) {
-    destroyFortification(
-      activeWall,
-      deadPile,
-    );
-  }
-
   const oldWallCard =
     activeWall.card;
 
@@ -84,8 +75,17 @@ export function convertWall(
         oldWallCard.id,
     );
 
-  if (oldWallIndex === -1) {
+  if (oldWallIndex !== 0) {
     return;
+  }
+
+  if (
+    activeWall.fortification !== null
+  ) {
+    destroyFortification(
+      activeWall,
+      deadPile,
+    );
   }
 
   moveCardById(
@@ -111,7 +111,10 @@ export function convertWall(
     newWallCard,
   );
 
-  return createWallState(
-    newWallCard,
-  );
+  player.activeWallState =
+    createWallState(
+      newWallCard,
+    );
+
+  return player.activeWallState;
 }

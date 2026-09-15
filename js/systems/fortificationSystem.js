@@ -19,6 +19,10 @@ export function canFortify(
     return false;
   }
 
+  if (!wall || !card) {
+    return false;
+  }
+
   return (
     wall.card.baseValue === card.baseValue &&
     wall.fortification === null
@@ -31,6 +35,13 @@ export function fortifyWall(
   card,
   phase = PHASES.NORMAL_SIEGE,
 ) {
+  if (
+    !player ||
+    player.activeWallState !== wall
+  ) {
+    return;
+  }
+
   if (
     !canFortify(
       wall,

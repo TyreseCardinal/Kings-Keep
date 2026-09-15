@@ -175,6 +175,117 @@ export function resolveSiegeAgainstKing(
   };
 }
 
+export function resolveEndgameSiege(
+  playerA,
+  playerB,
+  removedFromGamePile,
+) {
+  const phase =
+    getCombatPhase(
+      playerA,
+      playerB,
+    );
+
+  if (phase !== PHASES.ENDGAME) {
+    return;
+  }
+
+  const siegeResults =
+    resolveSiegeLanes(
+      playerA,
+      playerB,
+    );
+
+  const centerResult =
+    siegeResults.center;
+
+  if (centerResult === "tie") {
+    return {
+      siegeResults,
+      centerResult,
+      winner: null,
+      loser: null,
+      damageResult: null,
+    };
+  }
+
+  let winner;
+  let loser;
+  let winnerResult;
+
+  if (centerResult === "playerA") {
+    winner = playerA;
+    loser = playerB;
+    winnerResult = "playerA";
+  } else if (
+    centerResult === "playerB"
+  ) {
+    winner = playerB;
+    loser = playerA;
+    winnerResult = "playerB";
+  } else {
+    return;
+  }
+
+  const activeDefense =
+    getActiveDefense(winner);
+
+  const finalDamage =
+    getFinalSiegeDamage(
+      winner,
+      loser,
+      siegeResults,
+      winnerResult,
+      activeDefense,
+    );
+
+  const damagedKingLayer =
+    applyKingDamage(
+      loser.kingState,
+      finalDamage,
+    );
+
+  if (!damagedKingLayer) {
+    return;
+  }
+
+  let reinforcementDestroyed = false;
+
+  if (
+    isKingLayerDestroyed(
+      damagedKingLayer,
+    ) &&
+    damagedKingLayer !==
+      loser.kingState
+  ) {
+    reinforcementDestroyed =
+      destroyKingReinforcement(
+        loser.kingState,
+        removedFromGamePile,
+      );
+  }
+
+  const originalKingDefeated =
+    isOriginalKingDefeated(
+      loser.kingState,
+    );
+
+  const damageResult = {
+    finalDamage,
+    damagedKingLayer,
+    reinforcementDestroyed,
+    originalKingDefeated,
+  };
+
+  return {
+    siegeResults,
+    centerResult,
+    winner,
+    loser,
+    damageResult,
+  };
+}
+
 export function resolveLastStandSiege(
   playerA,
   playerB,
@@ -292,11 +403,10 @@ export function resolveLastStandSiege(
   let damageResult;
 
   if (centerResult === lastStandResult) {
-const opponentWallState =
-  wallPlayer.activeWallState;
+    const opponentWallState =
+      wallPlayer.activeWallState;
 
-if (opponentWallState) {
-
+    if (opponentWallState) {
       applyWallDamage(
         opponentWallState,
         lastStandDamage,

@@ -20,19 +20,11 @@ import {
 
 import { isValidLane, canPlayToSiege } from "../systems/siegeSystem.js";
 
-import {
-  canFortify,
-  fortifyWall,
-} from "../systems/fortificationSystem.js";
+import { canFortify, fortifyWall } from "../systems/fortificationSystem.js";
 
-import {
-  createWallState,
-} from "../systems/wallSystem.js";
+import { createWallState } from "../systems/wallSystem.js";
 
-import {
-  canConvert,
-  convertWall,
-} from "../systems/convertSystem.js";
+import { canConvert, convertWall } from "../systems/convertSystem.js";
 
 console.log("----- PHASE SYSTEM TESTS -----");
 
@@ -587,40 +579,23 @@ console.log(
 // Normal Siege Fortification
 // ---------------------------------------------
 
-const normalFortifyPlayer = createPlayer(
-  "normalFortifyPlayer",
-);
+const normalFortifyPlayer = createPlayer("normalFortifyPlayer");
 
-const normalFortifyWallCard = createCard(
-  "hearts",
-  "7",
-);
+const normalFortifyWallCard = createCard("hearts", "7");
 
-const normalFortifyCard = createCard(
-  "clubs",
-  "7",
-);
+const normalFortifyCard = createCard("clubs", "7");
 
-normalFortifyPlayer.tower.push(
-  normalFortifyWallCard,
-);
+normalFortifyPlayer.tower.push(normalFortifyWallCard);
 
-normalFortifyPlayer.hand.push(
-  normalFortifyCard,
-);
+normalFortifyPlayer.hand.push(normalFortifyCard);
 
-const normalFortifyWall =
-  createWallState(
-    normalFortifyWallCard,
-  );
+const normalFortifyWall = createWallState(normalFortifyWallCard);
+
+normalFortifyPlayer.activeWallState = normalFortifyWall;
 
 console.log(
   "Normal Siege Can Fortify:",
-  canFortify(
-    normalFortifyWall,
-    normalFortifyCard,
-    PHASES.NORMAL_SIEGE,
-  ),
+  canFortify(normalFortifyWall, normalFortifyCard, PHASES.NORMAL_SIEGE),
 );
 
 fortifyWall(
@@ -632,8 +607,7 @@ fortifyWall(
 
 console.log(
   "Normal Siege Fortification Attached:",
-  normalFortifyWall.fortification?.card ===
-    normalFortifyCard,
+  normalFortifyWall.fortification?.card === normalFortifyCard,
 );
 
 console.log(
@@ -645,40 +619,21 @@ console.log(
 // Last Stand Fortification
 // ---------------------------------------------
 
-const lastStandFortifyPlayer = createPlayer(
-  "lastStandFortifyPlayer",
-);
+const lastStandFortifyPlayer = createPlayer("lastStandFortifyPlayer");
 
-const lastStandFortifyWallCard = createCard(
-  "diamonds",
-  "6",
-);
+const lastStandFortifyWallCard = createCard("diamonds", "6");
 
-const lastStandFortifyCard = createCard(
-  "clubs",
-  "6",
-);
+const lastStandFortifyCard = createCard("clubs", "6");
 
-lastStandFortifyPlayer.tower.push(
-  lastStandFortifyWallCard,
-);
+lastStandFortifyPlayer.tower.push(lastStandFortifyWallCard);
 
-lastStandFortifyPlayer.hand.push(
-  lastStandFortifyCard,
-);
+lastStandFortifyPlayer.hand.push(lastStandFortifyCard);
 
-const lastStandFortifyWall =
-  createWallState(
-    lastStandFortifyWallCard,
-  );
+const lastStandFortifyWall = createWallState(lastStandFortifyWallCard);
 
 console.log(
   "Last Stand Fortify Rejected:",
-  !canFortify(
-    lastStandFortifyWall,
-    lastStandFortifyCard,
-    PHASES.LAST_STAND,
-  ),
+  !canFortify(lastStandFortifyWall, lastStandFortifyCard, PHASES.LAST_STAND),
 );
 
 fortifyWall(
@@ -700,48 +655,28 @@ console.log(
 
 console.log(
   "Last Stand Fortify Preserved Hand:",
-  lastStandFortifyPlayer.hand[0] ===
-    lastStandFortifyCard,
+  lastStandFortifyPlayer.hand[0] === lastStandFortifyCard,
 );
 
 // ---------------------------------------------
 // Endgame Fortification
 // ---------------------------------------------
 
-const endgameFortifyPlayer = createPlayer(
-  "endgameFortifyPlayer",
-);
+const endgameFortifyPlayer = createPlayer("endgameFortifyPlayer");
 
-const endgameFortifyWallCard = createCard(
-  "spades",
-  "8",
-);
+const endgameFortifyWallCard = createCard("spades", "8");
 
-const endgameFortifyCard = createCard(
-  "hearts",
-  "8",
-);
+const endgameFortifyCard = createCard("hearts", "8");
 
-endgameFortifyPlayer.tower.push(
-  endgameFortifyWallCard,
-);
+endgameFortifyPlayer.tower.push(endgameFortifyWallCard);
 
-endgameFortifyPlayer.hand.push(
-  endgameFortifyCard,
-);
+endgameFortifyPlayer.hand.push(endgameFortifyCard);
 
-const endgameFortifyWall =
-  createWallState(
-    endgameFortifyWallCard,
-  );
+const endgameFortifyWall = createWallState(endgameFortifyWallCard);
 
 console.log(
   "Endgame Fortify Rejected:",
-  !canFortify(
-    endgameFortifyWall,
-    endgameFortifyCard,
-    PHASES.ENDGAME,
-  ),
+  !canFortify(endgameFortifyWall, endgameFortifyCard, PHASES.ENDGAME),
 );
 
 fortifyWall(
@@ -763,8 +698,7 @@ console.log(
 
 console.log(
   "Endgame Fortify Preserved Hand:",
-  endgameFortifyPlayer.hand[0] ===
-    endgameFortifyCard,
+  endgameFortifyPlayer.hand[0] === endgameFortifyCard,
 );
 
 // ---------------------------------------------
@@ -775,69 +709,43 @@ console.log(
 // Normal Siege Convert
 // ---------------------------------------------
 
-const normalConvertPlayer = createPlayer(
-  "normalConvertPlayer",
-);
+const normalConvertPlayer = createPlayer("normalConvertPlayer");
 
-const normalConvertWallCard = createCard(
-  "hearts",
-  "7",
-);
+const normalConvertWallCard = createCard("hearts", "7");
 
-const normalConvertCard = createCard(
-  "hearts",
-  "4",
-);
+const normalConvertCard = createCard("hearts", "4");
 
-const normalConvertKing = createCard(
-  "spades",
-  "king",
-);
+const normalConvertKing = createCard("spades", "king");
 
-normalConvertPlayer.tower.push(
-  normalConvertWallCard,
-  normalConvertKing,
-);
+normalConvertPlayer.tower.push(normalConvertWallCard, normalConvertKing);
 
-normalConvertPlayer.hand.push(
-  normalConvertCard,
-);
+normalConvertPlayer.hand.push(normalConvertCard);
 
-const normalConvertWall =
-  createWallState(
-    normalConvertWallCard,
-  );
+const normalConvertWall = createWallState(normalConvertWallCard);
 
 const normalConvertDeadPile = [];
 
 console.log(
   "Normal Siege Can Convert:",
-  canConvert(
-    normalConvertWall,
-    normalConvertCard,
-    PHASES.NORMAL_SIEGE,
-  ),
+  canConvert(normalConvertWall, normalConvertCard, PHASES.NORMAL_SIEGE),
 );
 
-const normalConvertedWall =
-  convertWall(
-    normalConvertPlayer,
-    normalConvertWall,
-    normalConvertCard,
-    normalConvertDeadPile,
-    PHASES.NORMAL_SIEGE,
-  );
+const normalConvertedWall = convertWall(
+  normalConvertPlayer,
+  normalConvertWall,
+  normalConvertCard,
+  normalConvertDeadPile,
+  PHASES.NORMAL_SIEGE,
+);
 
 console.log(
   "Normal Siege Convert Replaced Active Wall:",
-  normalConvertPlayer.tower[0] ===
-    normalConvertCard,
+  normalConvertPlayer.tower[0] === normalConvertCard,
 );
 
 console.log(
   "Normal Siege Old Wall Entered Dead Pile:",
-  normalConvertDeadPile[0] ===
-    normalConvertWallCard,
+  normalConvertDeadPile[0] === normalConvertWallCard,
 );
 
 console.log(
@@ -854,62 +762,37 @@ console.log(
 // Last Stand Convert
 // ---------------------------------------------
 
-const lastStandConvertPlayer =
-  createPlayer(
-    "lastStandConvertPlayer",
-  );
+const lastStandConvertPlayer = createPlayer("lastStandConvertPlayer");
 
-const lastStandConvertWallCard =
-  createCard(
-    "clubs",
-    "6",
-  );
+const lastStandConvertWallCard = createCard("clubs", "6");
 
-const lastStandConvertCard =
-  createCard(
-    "clubs",
-    "9",
-  );
+const lastStandConvertCard = createCard("clubs", "9");
 
-const lastStandConvertKing =
-  createCard(
-    "diamonds",
-    "king",
-  );
+const lastStandConvertKing = createCard("diamonds", "king");
 
 lastStandConvertPlayer.tower.push(
   lastStandConvertWallCard,
   lastStandConvertKing,
 );
 
-lastStandConvertPlayer.hand.push(
-  lastStandConvertCard,
-);
+lastStandConvertPlayer.hand.push(lastStandConvertCard);
 
-const lastStandConvertWall =
-  createWallState(
-    lastStandConvertWallCard,
-  );
+const lastStandConvertWall = createWallState(lastStandConvertWallCard);
 
 const lastStandConvertDeadPile = [];
 
 console.log(
   "Last Stand Convert Rejected:",
-  !canConvert(
-    lastStandConvertWall,
-    lastStandConvertCard,
-    PHASES.LAST_STAND,
-  ),
+  !canConvert(lastStandConvertWall, lastStandConvertCard, PHASES.LAST_STAND),
 );
 
-const lastStandConvertResult =
-  convertWall(
-    lastStandConvertPlayer,
-    lastStandConvertWall,
-    lastStandConvertCard,
-    lastStandConvertDeadPile,
-    PHASES.LAST_STAND,
-  );
+const lastStandConvertResult = convertWall(
+  lastStandConvertPlayer,
+  lastStandConvertWall,
+  lastStandConvertCard,
+  lastStandConvertDeadPile,
+  PHASES.LAST_STAND,
+);
 
 console.log(
   "Last Stand Convert Returned Undefined:",
@@ -918,14 +801,12 @@ console.log(
 
 console.log(
   "Last Stand Convert Preserved Active Wall:",
-  lastStandConvertPlayer.tower[0] ===
-    lastStandConvertWallCard,
+  lastStandConvertPlayer.tower[0] === lastStandConvertWallCard,
 );
 
 console.log(
   "Last Stand Convert Preserved Hand:",
-  lastStandConvertPlayer.hand[0] ===
-    lastStandConvertCard,
+  lastStandConvertPlayer.hand[0] === lastStandConvertCard,
 );
 
 console.log(
@@ -937,62 +818,34 @@ console.log(
 // Endgame Convert
 // ---------------------------------------------
 
-const endgameConvertPlayer =
-  createPlayer(
-    "endgameConvertPlayer",
-  );
+const endgameConvertPlayer = createPlayer("endgameConvertPlayer");
 
-const endgameConvertWallCard =
-  createCard(
-    "spades",
-    "8",
-  );
+const endgameConvertWallCard = createCard("spades", "8");
 
-const endgameConvertCard =
-  createCard(
-    "spades",
-    "3",
-  );
+const endgameConvertCard = createCard("spades", "3");
 
-const endgameConvertKing =
-  createCard(
-    "hearts",
-    "king",
-  );
+const endgameConvertKing = createCard("hearts", "king");
 
-endgameConvertPlayer.tower.push(
-  endgameConvertWallCard,
-  endgameConvertKing,
-);
+endgameConvertPlayer.tower.push(endgameConvertWallCard, endgameConvertKing);
 
-endgameConvertPlayer.hand.push(
-  endgameConvertCard,
-);
+endgameConvertPlayer.hand.push(endgameConvertCard);
 
-const endgameConvertWall =
-  createWallState(
-    endgameConvertWallCard,
-  );
+const endgameConvertWall = createWallState(endgameConvertWallCard);
 
 const endgameConvertDeadPile = [];
 
 console.log(
   "Endgame Convert Rejected:",
-  !canConvert(
-    endgameConvertWall,
-    endgameConvertCard,
-    PHASES.ENDGAME,
-  ),
+  !canConvert(endgameConvertWall, endgameConvertCard, PHASES.ENDGAME),
 );
 
-const endgameConvertResult =
-  convertWall(
-    endgameConvertPlayer,
-    endgameConvertWall,
-    endgameConvertCard,
-    endgameConvertDeadPile,
-    PHASES.ENDGAME,
-  );
+const endgameConvertResult = convertWall(
+  endgameConvertPlayer,
+  endgameConvertWall,
+  endgameConvertCard,
+  endgameConvertDeadPile,
+  PHASES.ENDGAME,
+);
 
 console.log(
   "Endgame Convert Returned Undefined:",
@@ -1001,14 +854,12 @@ console.log(
 
 console.log(
   "Endgame Convert Preserved Active Wall:",
-  endgameConvertPlayer.tower[0] ===
-    endgameConvertWallCard,
+  endgameConvertPlayer.tower[0] === endgameConvertWallCard,
 );
 
 console.log(
   "Endgame Convert Preserved Hand:",
-  endgameConvertPlayer.hand[0] ===
-    endgameConvertCard,
+  endgameConvertPlayer.hand[0] === endgameConvertCard,
 );
 
 console.log(

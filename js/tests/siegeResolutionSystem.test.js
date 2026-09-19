@@ -16,6 +16,7 @@ import {
   resolveSiegeAgainstKing,
   resolveLastStandSiege,
   resolveEndgameSiege,
+  resolveNormalSiege,
 } from "../systems/siegeResolutionSystem.js";
 
 import {
@@ -1218,4 +1219,157 @@ console.log(
 console.log(
   "Endgame Loser Identified:",
   endgameResult?.loser === endgamePlayerB,
+);
+
+// ---------------------------------------------
+// NORMAL SIEGE SIMULTANEOUS FINAL WALL TEST
+// ---------------------------------------------
+
+console.log(
+  "----- NORMAL SIEGE COORDINATOR TESTS -----",
+);
+
+const normalPlayerA =
+  createPlayer("normal-A");
+
+const normalPlayerB =
+  createPlayer("normal-B");
+
+const normalDeadPile = [];
+
+
+// ---------------------------------------------
+// CREATE FINAL WALLS + KINGS
+// ---------------------------------------------
+
+const normalPlayerAWall =
+  createCard(
+    "clubs",
+    "2",
+  );
+
+const normalPlayerAKing =
+  createCard(
+    "hearts",
+    "king",
+  );
+
+const normalPlayerBWall =
+  createCard(
+    "diamonds",
+    "2",
+  );
+
+const normalPlayerBKing =
+  createCard(
+    "spades",
+    "king",
+  );
+
+
+normalPlayerA.tower.push(
+  normalPlayerAWall,
+  normalPlayerAKing,
+);
+
+normalPlayerB.tower.push(
+  normalPlayerBWall,
+  normalPlayerBKing,
+);
+
+
+normalPlayerA.activeWallState =
+  createWallState(
+    normalPlayerAWall,
+  );
+
+normalPlayerB.activeWallState =
+  createWallState(
+    normalPlayerBWall,
+  );
+
+
+// ---------------------------------------------
+// CREATE SIMULTANEOUS WINNING LANES
+// ---------------------------------------------
+
+const normalPlayerACard =
+  createCard(
+    "hearts",
+    "8",
+  );
+
+const normalPlayerBCard =
+  createCard(
+    "clubs",
+    "8",
+  );
+
+
+// A wins Left.
+
+normalPlayerA.siege.left.push(
+  normalPlayerACard,
+);
+
+
+// B wins Center.
+
+normalPlayerB.siege.center.push(
+  normalPlayerBCard,
+);
+
+
+// ---------------------------------------------
+// VERIFY STARTING PHASE
+// ---------------------------------------------
+
+console.log(
+  "Simultaneous Test Starts In Normal Siege:",
+  getCombatPhase(
+    normalPlayerA,
+    normalPlayerB,
+  ) === PHASES.NORMAL_SIEGE,
+);
+
+
+// ---------------------------------------------
+// RESOLVE NORMAL SIEGE
+// ---------------------------------------------
+
+const normalSiegeResult =
+  resolveNormalSiege(
+    normalPlayerA,
+    normalPlayerB,
+    normalDeadPile,
+  );
+
+console.log(
+  "Normal Siege Coordinator Resolved:",
+  normalSiegeResult !== undefined,
+);
+
+console.log(
+  "Player A Final Wall Destroyed:",
+  normalPlayerA.tower.length === 1,
+);
+
+console.log(
+  "Player B Final Wall Destroyed:",
+  normalPlayerB.tower.length === 1,
+);
+
+console.log(
+  "Both Kings Became Exposed:",
+  normalPlayerA.tower[0] ===
+    normalPlayerAKing &&
+    normalPlayerB.tower[0] ===
+      normalPlayerBKing,
+);
+
+console.log(
+  "Simultaneous Final Walls Enter Endgame:",
+  normalSiegeResult
+    ?.phaseAfterResolution ===
+    PHASES.ENDGAME,
 );

@@ -1,5 +1,3 @@
-import { canResolveSiegeSpecial } from "../../siegeSystem.js";
-
 import { removeFortificationHp } from "../../fortificationSystem.js";
 
 import { isSiegeSpecialCard } from "../../specialCardSystem.js";

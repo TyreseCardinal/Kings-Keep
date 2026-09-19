@@ -7,6 +7,8 @@ import {
   PHASES,
 } from "./phaseSystem.js";
 
+
+
 export function canFortify(
   wall,
   card,

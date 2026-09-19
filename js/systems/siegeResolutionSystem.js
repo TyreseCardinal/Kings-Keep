@@ -509,21 +509,139 @@ export function resolveLastStandSiege(
   };
 }
 
+// ---------------------------------------------
+// NORMAL SIEGE RESOLUTION
+// ---------------------------------------------
+
+export function resolveNormalSiege(
+  playerA,
+  playerB,
+  deadPile,
+) {
+  const phaseBeforeResolution =
+    getCombatPhase(
+      playerA,
+      playerB,
+    );
+
+  if (
+    phaseBeforeResolution !==
+    PHASES.NORMAL_SIEGE
+  ) {
+    return;
+  }
+
+  // ---------------------------------------------
+  // SNAPSHOT SIEGE
+  // ---------------------------------------------
+
+  const siegeResults =
+    resolveSiegeLanes(
+      playerA,
+      playerB,
+    );
+
+  // ---------------------------------------------
+  // SNAPSHOT ACTIVE WALLS
+  // ---------------------------------------------
+
+  const playerAWall =
+    playerA.activeWallState;
+
+  const playerBWall =
+    playerB.activeWallState;
+
+    // ---------------------------------------------
+// SNAPSHOT ACTIVE DEFENSES
+// ---------------------------------------------
+
+const playerAActiveDefense =
+  getActiveDefense(
+    playerA,
+  );
+
+const playerBActiveDefense =
+  getActiveDefense(
+    playerB,
+  );
+
+  if (
+    !playerAWall ||
+    !playerBWall
+  ) {
+    return;
+  }
+
+  // ---------------------------------------------
+  // RESOLVE PLAYER A → PLAYER B
+  // ---------------------------------------------
+
+ const playerAResult =
+  resolveSiegeAgainstWall(
+    playerA,
+    playerB,
+    playerBWall,
+    deadPile,
+    "playerA",
+    siegeResults,
+    playerAActiveDefense,
+  );
+
+  // ---------------------------------------------
+  // RESOLVE PLAYER B → PLAYER A
+  // ---------------------------------------------
+
+ const playerBResult =
+  resolveSiegeAgainstWall(
+    playerB,
+    playerA,
+    playerAWall,
+    deadPile,
+    "playerB",
+    siegeResults,
+    playerBActiveDefense,
+  );
+
+  // ---------------------------------------------
+  // DETERMINE RESULTING PHASE
+  // ---------------------------------------------
+
+  const phaseAfterResolution =
+    getCombatPhase(
+      playerA,
+      playerB,
+    );
+
+  return {
+    siegeResults,
+
+    playerAResult,
+    playerBResult,
+
+    phaseBeforeResolution,
+    phaseAfterResolution,
+  };
+}
+
 export function resolveSiegeAgainstWall(
   player,
   opponent,
   opponentWall,
   deadPile,
   playerResult,
+  existingSiegeResults = null,
+  existingActiveDefense = null,
 ) {
   const siegeResults =
+    existingSiegeResults ??
     resolveSiegeLanes(
       player,
       opponent,
     );
 
-  const activeDefense =
-    getActiveDefense(player);
+ const activeDefense =
+  existingActiveDefense ??
+  getActiveDefense(player);
 
   const finalDamage =
     getFinalSiegeDamage(

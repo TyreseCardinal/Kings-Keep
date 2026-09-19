@@ -1,4 +1,8 @@
-import { createPlayer, drawCard } from "../systems/playerSystem.js";
+import {
+  createPlayer,
+  drawCard,
+  refillNumberHand,
+} from "../systems/playerSystem.js";
 
 import { createCard } from "../systems/cardSystem.js";
 
@@ -459,17 +463,27 @@ drawCard(
 );
 
 console.log(
-  "Last Stand King Entered Dead Pile:",
-  lastStandKingDeadPile[0] === lastStandDrawKing,
+  "Last Stand King Removed From Draw Pile:",
+  lastStandKingDrawPile.length === 0,
 );
 
 console.log(
-  "Last Stand King Did Not Reinforce:",
-  lastStandKingPlayer.kingState.reinforcements.length === 0,
+  "Last Stand King Reinforces King Layer:",
+  lastStandKingPlayer.kingState.reinforcements.length === 1,
 );
 
 console.log(
-  "Last Stand King Did Not Enter Special Hand:",
+  "Last Stand King Is Correct Reinforcement:",
+  lastStandKingPlayer.kingState.reinforcements[0].card === lastStandDrawKing,
+);
+
+console.log(
+  "Last Stand King Does Not Enter Dead Pile:",
+  lastStandKingDeadPile.length === 0,
+);
+
+console.log(
+  "Last Stand King Does Not Enter Special Hand:",
   lastStandKingPlayer.specialHand.length === 0,
 );
 
@@ -528,17 +542,27 @@ drawCard(
 );
 
 console.log(
-  "Endgame King Entered Dead Pile:",
-  endgameKingDeadPile[0] === endgameDrawKing,
+  "Endgame King Removed From Draw Pile:",
+  endgameKingDrawPile.length === 0,
 );
 
 console.log(
-  "Endgame King Did Not Reinforce:",
-  endgameKingPlayer.kingState.reinforcements.length === 0,
+  "Endgame King Reinforces King Layer:",
+  endgameKingPlayer.kingState.reinforcements.length === 1,
 );
 
 console.log(
-  "Endgame King Did Not Enter Special Hand:",
+  "Endgame King Is Correct Reinforcement:",
+  endgameKingPlayer.kingState.reinforcements[0].card === endgameDrawKing,
+);
+
+console.log(
+  "Endgame King Does Not Enter Dead Pile:",
+  endgameKingDeadPile.length === 0,
+);
+
+console.log(
+  "Endgame King Does Not Enter Special Hand:",
   endgameKingPlayer.specialHand.length === 0,
 );
 
@@ -569,6 +593,69 @@ console.log(
 console.log(
   "Last Stand Number Did Not Enter Dead Pile:",
   phaseNumberDeadPile.length === 0,
+);
+
+// ---------------------------------------------
+// Number Hand Refill
+// ---------------------------------------------
+
+const refillPlayer = createPlayer("refillPlayer");
+
+const refillOriginalKing = createCard("hearts", "king");
+
+refillPlayer.tower.push(refillOriginalKing);
+
+refillPlayer.kingState = createKingState(refillOriginalKing);
+
+refillPlayer.hand.push(
+  createCard("clubs", "2"),
+  createCard("diamonds", "3"),
+  createCard("spades", "4"),
+);
+
+const refillSpecial = createCard("hearts", "ace");
+
+const refillKing = createCard("clubs", "king");
+
+const refillNumberOne = createCard("diamonds", "8");
+
+const refillNumberTwo = createCard("spades", "9");
+
+const refillDrawPile = [
+  refillSpecial,
+  refillKing,
+  refillNumberOne,
+  refillNumberTwo,
+];
+
+const refillDeadPile = [];
+
+refillNumberHand(
+  refillPlayer,
+  refillDrawPile,
+  refillDeadPile,
+  PHASES.LAST_STAND,
+);
+
+console.log(
+  "Refill Restores Number Hand To Five:",
+  refillPlayer.hand.length === 5,
+);
+
+console.log(
+  "Refill Routes Special To Dead Pile:",
+  refillDeadPile.includes(refillSpecial),
+);
+
+console.log(
+  "Refill Routes King To King Layer:",
+  refillPlayer.kingState.reinforcements.length === 1 &&
+    refillPlayer.kingState.reinforcements[0].card === refillKing,
+);
+
+console.log(
+  "Refill Stops After Number Hand Reaches Five:",
+  refillDrawPile.length === 0,
 );
 
 // ---------------------------------------------

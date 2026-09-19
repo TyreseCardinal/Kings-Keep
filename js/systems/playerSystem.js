@@ -1,4 +1,9 @@
-import { moveCard } from "./cardLifecycleSystem.js";
+import {
+  moveCard,
+  recycleDeadPile,
+} from "./cardLifecycleSystem.js";
+
+import { shuffleDeck } from "./deckSystem.js";
 
 import { createSiege } from "./siegeSystem.js";
 
@@ -52,27 +57,8 @@ export function drawCard(
   }
 
   // ---------------------------------------------
-  // Last Stand / Endgame Special Draw
-  // ---------------------------------------------
-
-  if (
-    phase === PHASES.LAST_STAND ||
-    phase === PHASES.ENDGAME
-  ) {
-    if (!Array.isArray(deadPile)) {
-      return;
-    }
-
-    moveCard(
-      drawPile,
-      deadPile,
-    );
-
-    return;
-  }
-
-  // ---------------------------------------------
-  // Normal Siege King Reinforcement
+  // King Reinforcement
+  // Kings reinforce during ANY combat phase.
   // ---------------------------------------------
 
   if (
@@ -104,13 +90,20 @@ export function drawCard(
   }
 
   // ---------------------------------------------
-  // Rejected King
+  // Last Stand / Endgame Special Draw
   // ---------------------------------------------
 
-  if (isKing(drawnCard)) {
+  if (
+    phase === PHASES.LAST_STAND ||
+    phase === PHASES.ENDGAME
+  ) {
+    if (!Array.isArray(deadPile)) {
+      return;
+    }
+
     moveCard(
       drawPile,
-      drawPile,
+      deadPile,
     );
 
     return;
@@ -136,23 +129,127 @@ export function drawCard(
   // Full Special Hand
   // ---------------------------------------------
 
+  if (!Array.isArray(deadPile)) {
+    return;
+  }
+
   moveCard(
     drawPile,
-    drawPile,
+    deadPile,
   );
+
+  return;
+}
+
+export function refillNumberHand(
+  player,
+  drawPile,
+  deadPile,
+  phase = PHASES.NORMAL_SIEGE,
+) {
+  const cardsSeenWithoutNumber =
+    new Set();
+
+  while (player.hand.length < 5) {
+    // ---------------------------------------------
+    // Recycle Dead Pile If Draw Pile Is Empty
+    // ---------------------------------------------
+
+    if (drawPile.length === 0) {
+      recycleDeadPile(
+        drawPile,
+        deadPile,
+        shuffleDeck,
+      );
+    }
+
+    // ---------------------------------------------
+    // No Cards Available
+    // ---------------------------------------------
+
+    if (drawPile.length === 0) {
+      return;
+    }
+
+    // ---------------------------------------------
+    // Track Next Card
+    // ---------------------------------------------
+
+    const nextCard =
+      drawPile[0];
+
+    const handSizeBefore =
+      player.hand.length;
+
+    const drawPileSizeBefore =
+      drawPile.length;
+
+    // ---------------------------------------------
+    // Stop If Card Cycle Repeats
+    // ---------------------------------------------
+
+    if (
+      cardsSeenWithoutNumber.has(
+        nextCard.id,
+      )
+    ) {
+      return;
+    }
+
+    // ---------------------------------------------
+    // Draw Next Card
+    // ---------------------------------------------
+
+    drawCard(
+      player,
+      drawPile,
+      phase,
+      deadPile,
+    );
+
+    // ---------------------------------------------
+    // Draw Failed
+    // ---------------------------------------------
+
+    if (
+      drawPile.length ===
+      drawPileSizeBefore
+    ) {
+      return;
+    }
+
+    // ---------------------------------------------
+    // Number Was Drawn
+    // ---------------------------------------------
+
+    if (
+      player.hand.length >
+      handSizeBefore
+    ) {
+      cardsSeenWithoutNumber.clear();
+
+      continue;
+    }
+
+    // ---------------------------------------------
+    // Non-Number Was Drawn
+    // ---------------------------------------------
+
+    cardsSeenWithoutNumber.add(
+      nextCard.id,
+    );
+  }
 }
 
 export function drawStartingHand(
   player,
   drawPile,
+  deadPile,
 ) {
-  while (
-    player.hand.length !== 5 &&
-    drawPile.length !== 0
-  ) {
-    drawCard(
-      player,
-      drawPile,
-    );
-  }
+  refillNumberHand(
+    player,
+    drawPile,
+    deadPile,
+    PHASES.NORMAL_SIEGE,
+  );
 }

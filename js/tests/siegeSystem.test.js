@@ -1,5 +1,9 @@
 // IMPORTS
 
+import {
+  PHASES,
+} from "../systems/phaseSystem.js";
+
 // Player System Imports
 
 import { createPlayer } from "../systems/playerSystem.js";
@@ -25,6 +29,7 @@ import {
   isSiegeSweep,
   getSweepSpecialSuit,
   getRepeatedSiegeDamage,
+  clearSiege,
 } from "../systems/siegeSystem.js";
 
 // Card System Imports
@@ -1413,4 +1418,141 @@ console.log("Mixed Suit Final Siege Damage:", mixedRepeatFinalDamage);
 console.log(
   "Only Matching Suit Damage Repeats:",
   mixedRepeatFinalDamage === 29,
+);
+
+const phasePlayPlayer =
+  createPlayer("phasePlayPlayer");
+
+const phasePlayNumber =
+  createCard("hearts", "8");
+
+phasePlayPlayer.hand.push(
+  phasePlayNumber,
+);
+
+const illegalLastStandPlay =
+  playSiegeCard(
+    phasePlayPlayer,
+    phasePlayNumber,
+    "left",
+    PHASES.LAST_STAND,
+  );
+
+console.log(
+  "Last Stand Play Rejects Left Lane:",
+  illegalLastStandPlay === undefined,
+);
+
+console.log(
+  "Rejected Last Stand Card Remains In Hand:",
+  phasePlayPlayer.hand.includes(
+    phasePlayNumber,
+  ),
+);
+
+const legalLastStandPlay =
+  playSiegeCard(
+    phasePlayPlayer,
+    phasePlayNumber,
+    "center",
+    PHASES.LAST_STAND,
+  );
+
+console.log(
+  "Last Stand Play Allows Center Number:",
+  legalLastStandPlay === phasePlayNumber,
+);
+
+console.log(
+  "Legal Last Stand Card Entered Center:",
+  phasePlayPlayer.siege.center.includes(
+    phasePlayNumber,
+  ),
+);
+
+// ---------------------------------------------
+// SIEGE CLEANUP TESTS
+// ---------------------------------------------
+
+console.log(
+  "----- SIEGE CLEANUP TESTS -----",
+);
+
+const cleanupPlayer =
+  createPlayer("cleanup-player");
+
+const cleanupDeadPile = [];
+
+const cleanupLeftCard =
+  createCard(
+    "hearts",
+    "8",
+  );
+
+const cleanupCenterCard =
+  createCard(
+    "clubs",
+    "6",
+  );
+
+const cleanupSpecial =
+  createCard(
+    "spades",
+    "queen",
+  );
+
+
+cleanupPlayer.siege.left.push(
+  cleanupLeftCard,
+);
+
+cleanupPlayer.siege.center.push(
+  cleanupCenterCard,
+);
+
+cleanupPlayer.siege.right.push(
+  cleanupSpecial,
+);
+
+
+// We only need some runtime state here.
+// clearSiege() should remove it regardless
+// of which Special created it.
+
+cleanupPlayer.siege.specialState = {
+  card: cleanupSpecial,
+};
+
+
+clearSiege(
+  cleanupPlayer,
+  cleanupDeadPile,
+);
+
+
+console.log(
+  "Cleanup Emptied All Siege Lanes:",
+  cleanupPlayer.siege.left.length === 0 &&
+    cleanupPlayer.siege.center.length === 0 &&
+    cleanupPlayer.siege.right.length === 0,
+);
+
+console.log(
+  "Cleanup Moved Remaining Cards To Dead Pile:",
+  cleanupDeadPile.length === 3 &&
+    cleanupDeadPile.includes(
+      cleanupLeftCard,
+    ) &&
+    cleanupDeadPile.includes(
+      cleanupCenterCard,
+    ) &&
+    cleanupDeadPile.includes(
+      cleanupSpecial,
+    ),
+);
+
+console.log(
+  "Cleanup Cleared Special State:",
+  cleanupPlayer.siege.specialState ===
+    null,
 );

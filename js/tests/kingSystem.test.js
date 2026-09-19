@@ -147,46 +147,6 @@ console.log(
   drawTestPlayer.kingState.reinforcements[0].currentHp === KING_HP,
 );
 
-const fullKingPlayer = createPlayer("full-king-test");
-
-const fullOriginalKing = createCard("hearts", "king");
-
-fullKingPlayer.kingState = createKingState(fullOriginalKing);
-
-const firstFullReinforcement = createCard("diamonds", "king");
-
-const secondFullReinforcement = createCard("clubs", "king");
-
-reinforceKing(fullKingPlayer.kingState, firstFullReinforcement);
-
-reinforceKing(fullKingPlayer.kingState, secondFullReinforcement);
-
-const rejectedKing = createCard("spades", "king");
-
-const fullKingDrawPile = [rejectedKing];
-
-drawCard(fullKingPlayer, fullKingDrawPile);
-
-console.log(
-  "Full King Layer Still Has Two Reinforcements:",
-  fullKingPlayer.kingState.reinforcements.length === 2,
-);
-
-console.log(
-  "Rejected King Did Not Enter Special Hand:",
-  fullKingPlayer.specialHand.length === 0,
-);
-
-console.log(
-  "Rejected King Remained In Draw Pile:",
-  fullKingDrawPile.length === 1,
-);
-
-console.log(
-  "Rejected King Returned To Draw Pile:",
-  fullKingDrawPile[0] === rejectedKing,
-);
-
 const exposedKingState = createKingState(createCard("hearts", "king"));
 
 const exposedFirstKing = createCard("diamonds", "king");

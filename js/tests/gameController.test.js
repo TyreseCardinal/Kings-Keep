@@ -7,6 +7,11 @@ import {
   fortifyActiveWall,
   convertActiveWall,
   syncSortieState,
+  selectCardForCurrentLane,
+  forfeitCurrentLane,
+  lockCurrentLaneDecisions,
+  revealLockedSelections,
+  SIEGE_STAGES,
 } from "../systems/gameController.js";
 
 import { createPlayer } from "../systems/playerSystem.js";
@@ -985,180 +990,262 @@ console.log(
 // FINISHED MATCH ACTION LOCK TEST
 // ---------------------------------------------
 
-const lockedPlayerA =
-  createPlayer("locked-a");
+const lockedPlayerA = createPlayer("locked-a");
 
-const lockedPlayerB =
-  createPlayer("locked-b");
+const lockedPlayerB = createPlayer("locked-b");
 
-const lockedWallA =
-  createCard(
-    "hearts",
-    "7",
-  );
+const lockedWallA = createCard("hearts", "7");
 
-const lockedKingA =
-  createCard(
-    "clubs",
-    "king",
-  );
+const lockedKingA = createCard("clubs", "king");
 
-const lockedWallB =
-  createCard(
-    "diamonds",
-    "7",
-  );
+const lockedWallB = createCard("diamonds", "7");
 
-const lockedKingB =
-  createCard(
-    "spades",
-    "king",
-  );
+const lockedKingB = createCard("spades", "king");
 
-lockedPlayerA.tower.push(
-  lockedWallA,
-  lockedKingA,
-);
+lockedPlayerA.tower.push(lockedWallA, lockedKingA);
 
-lockedPlayerB.tower.push(
-  lockedWallB,
-  lockedKingB,
-);
+lockedPlayerB.tower.push(lockedWallB, lockedKingB);
 
-lockedPlayerA.activeWallState =
-  createWallState(
-    lockedWallA,
-  );
+lockedPlayerA.activeWallState = createWallState(lockedWallA);
 
-lockedPlayerB.activeWallState =
-  createWallState(
-    lockedWallB,
-  );
+lockedPlayerB.activeWallState = createWallState(lockedWallB);
 
-lockedPlayerA.kingState =
-  createKingState(
-    lockedKingA,
-  );
+lockedPlayerA.kingState = createKingState(lockedKingA);
 
-lockedPlayerB.kingState =
-  createKingState(
-    lockedKingB,
-  );
+lockedPlayerB.kingState = createKingState(lockedKingB);
 
-const lockedSiegeCard =
-  createCard(
-    "clubs",
-    "5",
-  );
+const lockedSiegeCard = createCard("clubs", "5");
 
-const lockedFortifyCard =
-  createCard(
-    "hearts",
-    "4",
-  );
+const lockedFortifyCard = createCard("hearts", "4");
 
-const lockedConvertCard =
-  createCard(
-    "hearts",
-    "6",
-  );
+const lockedConvertCard = createCard("hearts", "6");
 
-lockedPlayerA.hand.push(
-  lockedSiegeCard,
-  lockedFortifyCard,
-  lockedConvertCard,
-);
+lockedPlayerA.hand.push(lockedSiegeCard, lockedFortifyCard, lockedConvertCard);
 
-const lockedGame =
-  createGameController(
-    lockedPlayerA,
-    lockedPlayerB,
-    [],
-    [],
-  );
+const lockedGame = createGameController(lockedPlayerA, lockedPlayerB, [], []);
 
 // Simulate a match that has already
 // been completed by the controller.
 
-lockedGame.status =
-  "finished";
+lockedGame.status = "finished";
 
-lockedGame.winner =
-  lockedPlayerA;
+lockedGame.winner = lockedPlayerA;
 
-const lockedHandSize =
-  lockedPlayerA.hand.length;
+const lockedHandSize = lockedPlayerA.hand.length;
 
-const lockedWallHp =
-  lockedPlayerA.activeWallState
-    .currentHp;
+const lockedWallHp = lockedPlayerA.activeWallState.currentHp;
 
-const lockedTowerCard =
-  lockedPlayerA.tower[0];
+const lockedTowerCard = lockedPlayerA.tower[0];
 
-const lockedSiegePlay =
-  playCardToSiege(
-    lockedGame,
-    lockedPlayerA,
-    lockedSiegeCard,
-    "center",
-  );
+const lockedSiegePlay = playCardToSiege(
+  lockedGame,
+  lockedPlayerA,
+  lockedSiegeCard,
+  "center",
+);
 
-const lockedFortify =
-  fortifyActiveWall(
-    lockedGame,
-    lockedPlayerA,
-    lockedFortifyCard,
-  );
+const lockedFortify = fortifyActiveWall(
+  lockedGame,
+  lockedPlayerA,
+  lockedFortifyCard,
+);
 
-const lockedConvert =
-  convertActiveWall(
-    lockedGame,
-    lockedPlayerA,
-    lockedConvertCard,
-  );
+const lockedConvert = convertActiveWall(
+  lockedGame,
+  lockedPlayerA,
+  lockedConvertCard,
+);
 
 console.log(
   "Finished Match Rejects Siege Play:",
   lockedSiegePlay === undefined,
 );
 
-console.log(
-  "Finished Match Rejects Fortify:",
-  lockedFortify === undefined,
-);
+console.log("Finished Match Rejects Fortify:", lockedFortify === undefined);
 
-console.log(
-  "Finished Match Rejects Convert:",
-  lockedConvert === undefined,
-);
+console.log("Finished Match Rejects Convert:", lockedConvert === undefined);
 
 console.log(
   "Finished Match Preserves Hand:",
-  lockedPlayerA.hand.length ===
-    lockedHandSize,
+  lockedPlayerA.hand.length === lockedHandSize,
 );
 
 console.log(
   "Finished Match Preserves Wall HP:",
-  lockedPlayerA.activeWallState
-    .currentHp === lockedWallHp,
+  lockedPlayerA.activeWallState.currentHp === lockedWallHp,
 );
 
 console.log(
   "Finished Match Preserves Active Wall:",
-  lockedPlayerA.tower[0] ===
-    lockedTowerCard,
+  lockedPlayerA.tower[0] === lockedTowerCard,
 );
 
 console.log(
   "Finished Match Keeps Siege Empty:",
-  lockedPlayerA.siege.center
-    .length === 0,
+  lockedPlayerA.siege.center.length === 0,
 );
 
 console.log(
   "Finished Match Preserves Winner:",
-  lockedGame.winner ===
-    lockedPlayerA,
+  lockedGame.winner === lockedPlayerA,
+);
+
+// ---------------------------------------------
+// COMPLETE SIEGE LIFECYCLE TEST
+// ---------------------------------------------
+
+console.log("----- COMPLETE SIEGE LIFECYCLE TEST -----");
+
+const lifecyclePlayerA = createPlayer("lifecycle-a");
+
+const lifecyclePlayerB = createPlayer("lifecycle-b");
+
+const lifecycleWallA = createCard("clubs", "10");
+
+const lifecycleWallB = createCard("diamonds", "10");
+
+lifecyclePlayerA.activeWallState = createWallState(lifecycleWallA);
+
+lifecyclePlayerB.activeWallState = createWallState(lifecycleWallB);
+
+lifecyclePlayerA.activeWallState.currentHp = 100;
+
+lifecyclePlayerB.activeWallState.currentHp = 100;
+
+const lifecycleKingA = createCard("hearts", "king");
+
+const lifecycleKingB = createCard("spades", "king");
+
+lifecyclePlayerA.tower.push(lifecycleWallA, lifecycleKingA);
+
+lifecyclePlayerB.tower.push(lifecycleWallB, lifecycleKingB);
+
+lifecyclePlayerA.activeWallState = createWallState(lifecycleWallA);
+
+lifecyclePlayerB.activeWallState = createWallState(lifecycleWallB);
+
+const lifecycleALeft = createCard("hearts", "8");
+
+const lifecycleACenter = createCard("clubs", "6");
+
+const lifecycleARight = createCard("spades", "4");
+
+const lifecycleBLeft = createCard("clubs", "2");
+
+const lifecycleBCenter = createCard("diamonds", "7");
+
+const lifecycleBRight = createCard("hearts", "3");
+
+lifecyclePlayerA.hand.push(lifecycleALeft, lifecycleACenter, lifecycleARight);
+
+lifecyclePlayerB.hand.push(lifecycleBLeft, lifecycleBCenter, lifecycleBRight);
+
+const lifecycleGame = createGameController(
+  lifecyclePlayerA,
+  lifecyclePlayerB,
+  [],
+  [],
+);
+
+console.log(
+  "Lifecycle Starts At Left:",
+  lifecycleGame.siegeStage === SIEGE_STAGES.SELECT_LEFT,
+);
+
+// LEFT
+
+selectCardForCurrentLane(lifecycleGame, lifecyclePlayerA, lifecycleALeft);
+
+selectCardForCurrentLane(lifecycleGame, lifecyclePlayerB, lifecycleBLeft);
+
+lockCurrentLaneDecisions(lifecycleGame);
+
+console.log(
+  "Lifecycle Advanced To Center:",
+  lifecycleGame.siegeStage === SIEGE_STAGES.SELECT_CENTER,
+);
+
+// CENTER
+
+selectCardForCurrentLane(lifecycleGame, lifecyclePlayerA, lifecycleACenter);
+
+selectCardForCurrentLane(lifecycleGame, lifecyclePlayerB, lifecycleBCenter);
+
+lockCurrentLaneDecisions(lifecycleGame);
+
+console.log(
+  "Lifecycle Advanced To Right:",
+  lifecycleGame.siegeStage === SIEGE_STAGES.SELECT_RIGHT,
+);
+
+// RIGHT
+// Player B intentionally forfeits this lane.
+
+selectCardForCurrentLane(lifecycleGame, lifecyclePlayerA, lifecycleARight);
+
+forfeitCurrentLane(lifecycleGame, lifecyclePlayerB);
+
+lockCurrentLaneDecisions(lifecycleGame);
+
+console.log(
+  "Lifecycle Advanced To Reveal:",
+  lifecycleGame.siegeStage === SIEGE_STAGES.REVEAL,
+);
+
+// REVEAL
+
+revealLockedSelections(lifecycleGame);
+
+console.log(
+  "Lifecycle Advanced To Resolve:",
+  lifecycleGame.siegeStage === SIEGE_STAGES.RESOLVE,
+);
+
+console.log(
+  "Lifecycle Revealed All Played Cards:",
+  lifecyclePlayerA.siege.left[0] === lifecycleALeft &&
+    lifecyclePlayerA.siege.center[0] === lifecycleACenter &&
+    lifecyclePlayerA.siege.right[0] === lifecycleARight &&
+    lifecyclePlayerB.siege.left[0] === lifecycleBLeft &&
+    lifecyclePlayerB.siege.center[0] === lifecycleBCenter &&
+    lifecyclePlayerB.siege.right.length === 0,
+);
+
+// RESOLVE
+
+const lifecycleResult = resolveCurrentSiege(lifecycleGame);
+
+console.log("Lifecycle Siege Resolved:", lifecycleResult !== undefined);
+
+console.log(
+  "Lifecycle Cleared Both Sieges:",
+  lifecyclePlayerA.siege.left.length === 0 &&
+    lifecyclePlayerA.siege.center.length === 0 &&
+    lifecyclePlayerA.siege.right.length === 0 &&
+    lifecyclePlayerB.siege.left.length === 0 &&
+    lifecyclePlayerB.siege.center.length === 0 &&
+    lifecyclePlayerB.siege.right.length === 0,
+);
+
+console.log(
+  "Lifecycle Cleared Pending Decisions:",
+  lifecycleGame.pendingSelections.playerA === null &&
+    lifecycleGame.pendingSelections.playerB === null,
+);
+
+console.log(
+  "Lifecycle Cleared Locked Decisions:",
+  lifecycleGame.lockedSelections.left.playerA === null &&
+    lifecycleGame.lockedSelections.left.playerB === null &&
+    lifecycleGame.lockedSelections.center.playerA === null &&
+    lifecycleGame.lockedSelections.center.playerB === null &&
+    lifecycleGame.lockedSelections.right.playerA === null &&
+    lifecycleGame.lockedSelections.right.playerB === null,
+);
+
+console.log(
+  "Lifecycle Started Next Siege:",
+  lifecycleGame.status === "active" &&
+    lifecycleGame.currentPhase === "last_stand" &&
+    lifecycleGame.siegeStage === SIEGE_STAGES.SELECT_CENTER,
 );

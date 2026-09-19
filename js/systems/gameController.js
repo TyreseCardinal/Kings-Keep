@@ -19,6 +19,7 @@ import {
   clearSiege,
   playSiegeCard,
   canPlayToSiege,
+  setSiegeSpecialState,
 } from "./siegeSystem.js";
 
 import {
@@ -410,6 +411,78 @@ export function lockCurrentLaneDecisions(
 }
 
 // ---------------------------------------------
+// REVEAL LOCKED SIEGE SELECTIONS
+// ---------------------------------------------
+
+export function revealLockedSelections(game) {
+  if (
+    !game ||
+    game.status !== GAME_STATUS.ACTIVE ||
+    game.siegeStage !== SIEGE_STAGES.REVEAL
+  ) {
+    return;
+  }
+
+  const currentPhase = syncCombatPhase(game);
+
+  const lanes =
+    currentPhase === PHASES.NORMAL_SIEGE
+      ? ["left", "center", "right"]
+      : ["center"];
+
+  const players = [
+    {
+      key: "playerA",
+      player: game.playerA,
+    },
+    {
+      key: "playerB",
+      player: game.playerB,
+    },
+  ];
+
+  for (const lane of lanes) {
+    for (const { key, player } of players) {
+      const selection =
+        game.lockedSelections[lane][key];
+
+      if (
+        selection === null ||
+        selection === LANE_DECISIONS.FORFEIT
+      ) {
+        continue;
+      }
+
+      const playedCard = playSiegeCard(
+        player,
+        selection.card,
+        lane,
+        currentPhase,
+      );
+
+      if (!playedCard) {
+        continue;
+      }
+
+      if (selection.specialState) {
+        setSiegeSpecialState(
+          player.siege,
+          selection.specialState,
+        );
+      }
+
+      if (playedCard.type === "number") {
+        refillPlayerHand(game, player);
+      }
+    }
+  }
+
+  game.siegeStage = SIEGE_STAGES.RESOLVE;
+
+  return game.siegeStage;
+}
+
+// ---------------------------------------------
 // SYNCHRONIZE COMBAT PHASE
 // ---------------------------------------------
 
@@ -707,8 +780,7 @@ export function resolveCurrentSiege(
 ) {
   if (
     !game ||
-    game.status !==
-      GAME_STATUS.ACTIVE
+    game.status !== GAME_STATUS.ACTIVE
   ) {
     return;
   }
@@ -720,7 +792,7 @@ export function resolveCurrentSiege(
 
   if (
     currentPhase ===
-    "normal_siege"
+    PHASES.NORMAL_SIEGE
   ) {
     siegeResult =
       resolveNormalSiege(
@@ -732,7 +804,7 @@ export function resolveCurrentSiege(
 
   if (
     currentPhase ===
-    "last_stand"
+    PHASES.LAST_STAND
   ) {
     siegeResult =
       resolveLastStandSiege(
@@ -746,7 +818,7 @@ export function resolveCurrentSiege(
 
   if (
     currentPhase ===
-    "endgame"
+    PHASES.ENDGAME
   ) {
     siegeResult =
       resolveEndgameSiege(
@@ -773,6 +845,44 @@ export function resolveCurrentSiege(
   syncSortieState(game);
 
   syncVictoryState(game);
+
+  // Match ended. No next Siege.
+  if (
+    game.status ===
+    GAME_STATUS.FINISHED
+  ) {
+    return siegeResult;
+  }
+
+  // Reset secret selection state.
+  game.pendingSelections = {
+    playerA: null,
+    playerB: null,
+  };
+
+  game.lockedSelections = {
+    left: {
+      playerA: null,
+      playerB: null,
+    },
+
+    center: {
+      playerA: null,
+      playerB: null,
+    },
+
+    right: {
+      playerA: null,
+      playerB: null,
+    },
+  };
+
+  // Start the next Siege at the correct lane.
+  game.siegeStage =
+    game.currentPhase ===
+    PHASES.NORMAL_SIEGE
+      ? SIEGE_STAGES.SELECT_LEFT
+      : SIEGE_STAGES.SELECT_CENTER;
 
   return siegeResult;
 }

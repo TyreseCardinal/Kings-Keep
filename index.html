@@ -9,7 +9,227 @@
 </head>
 
 <body>
-  <script type="module" src="./js/main.js"></script>
+
+  <main id="app">
+
+    <section id="game-board">
+
+      <!-- PLAYER TOWER — LEFT SIDE -->
+      <aside
+        id="player-tower-zone"
+        class="tower-zone"
+      >
+        <h2>Player Tower</h2>
+
+        <div
+          id="player-tower"
+          class="tower"
+        >
+          <div class="tower-slot king-slot">
+            King
+          </div>
+
+          <div class="tower-slot">Wall</div>
+          <div class="tower-slot">Wall</div>
+          <div class="tower-slot">Wall</div>
+          <div class="tower-slot">Wall</div>
+          <div class="tower-slot">Wall</div>
+          <div class="tower-slot">Wall</div>
+          <div class="tower-slot">Wall</div>
+        </div>
+      </aside>
+
+
+      <!-- CENTER BATTLEFIELD -->
+      <section id="battlefield">
+
+        <!-- ENEMY HAND -->
+        <section
+          id="enemy-hand-zone"
+          class="hand-zone"
+        >
+          <h2>Enemy Hand</h2>
+
+          <div
+            id="enemy-hand"
+            class="hand"
+          >
+            <div class="card card-back"></div>
+            <div class="card card-back"></div>
+            <div class="card card-back"></div>
+            <div class="card card-back"></div>
+            <div class="card card-back"></div>
+          </div>
+        </section>
+
+
+        <!-- ENEMY ACTIVE DEFENSE -->
+        <section
+          id="enemy-defense-zone"
+          class="active-defense-zone"
+        >
+          <div class="defense-card-slot">
+            Fortification
+          </div>
+
+          <div class="defense-card-slot">
+            Active Wall
+          </div>
+
+          <span class="wall-hp">
+            Wall HP
+          </span>
+        </section>
+
+
+        <!-- SIEGE -->
+        <section id="siege-zone">
+
+          <div
+            class="siege-lane"
+            data-lane="left"
+          >
+            <h3>Left</h3>
+
+            <div class="siege-slot enemy-siege-slot">
+              Enemy
+            </div>
+
+            <div class="siege-slot player-siege-slot">
+              Player
+            </div>
+          </div>
+
+
+          <div
+            class="siege-lane"
+            data-lane="center"
+          >
+            <h3>Center</h3>
+
+            <div class="siege-slot enemy-siege-slot">
+              Enemy
+            </div>
+
+            <div class="siege-slot player-siege-slot">
+              Player
+            </div>
+          </div>
+
+
+          <div
+            class="siege-lane"
+            data-lane="right"
+          >
+            <h3>Right</h3>
+
+            <div class="siege-slot enemy-siege-slot">
+              Enemy
+            </div>
+
+            <div class="siege-slot player-siege-slot">
+              Player
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- SHARED PILES -->
+        <section id="pile-zone">
+
+          <div
+            id="draw-pile"
+            class="pile"
+          >
+            Draw
+          </div>
+
+          <div
+            id="dead-pile"
+            class="pile"
+          >
+            Dead
+          </div>
+
+        </section>
+
+
+        <!-- PLAYER ACTIVE DEFENSE -->
+        <section
+          id="player-defense-zone"
+          class="active-defense-zone"
+        >
+          <div class="defense-card-slot">
+            Fortification
+          </div>
+
+          <div class="defense-card-slot">
+            Active Wall
+          </div>
+
+          <span class="wall-hp">
+            Wall HP
+          </span>
+        </section>
+
+
+        <!-- PLAYER HAND -->
+        <section
+          id="player-hand-zone"
+          class="hand-zone"
+        >
+          <div
+            id="player-hand"
+            class="hand"
+          >
+            <div class="card">Card</div>
+            <div class="card">Card</div>
+            <div class="card">Card</div>
+            <div class="card">Card</div>
+            <div class="card">Card</div>
+          </div>
+
+          <h2>Player Hand</h2>
+        </section>
+
+      </section>
+
+
+      <!-- ENEMY TOWER — RIGHT SIDE -->
+      <aside
+        id="enemy-tower-zone"
+        class="tower-zone"
+      >
+        <h2>Enemy Tower</h2>
+
+        <div
+          id="enemy-tower"
+          class="tower"
+        >
+          <div class="tower-slot">Wall</div>
+          <div class="tower-slot">Wall</div>
+          <div class="tower-slot">Wall</div>
+          <div class="tower-slot">Wall</div>
+          <div class="tower-slot">Wall</div>
+          <div class="tower-slot">Wall</div>
+          <div class="tower-slot">Wall</div>
+
+          <div class="tower-slot king-slot">
+            King
+          </div>
+        </div>
+      </aside>
+
+    </section>
+
+  </main>
+
+  <script
+    type="module"
+    src="./js/main.js"
+  ></script>
+
 </body>
 
-</html>
+</html> 

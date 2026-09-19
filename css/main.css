@@ -11,8 +11,260 @@ body {
 
 body {
   font-family: Arial, sans-serif;
+  background: #111;
+  color: white;
 }
 
 #app {
   min-height: 100vh;
+  padding: 20px;
+}
+
+
+/* =========================
+   MAIN GAME BOARD
+   ========================= */
+
+#game-board {
+  width: min(1400px, 100%);
+  min-height: calc(100vh - 40px);
+
+  margin: 0 auto;
+
+  display: grid;
+
+  grid-template-columns:
+    140px minmax(600px, 1fr) 140px;
+
+  gap: 24px;
+
+  border: 2px solid #555;
+  padding: 20px;
+
+  background: #181818;
+}
+
+
+/* =========================
+   TOWERS
+   ========================= */
+
+.tower-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tower-zone h2 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.tower {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: space-between;
+  align-items: center;
+
+  width: 100%;
+}
+
+.tower-slot {
+  width: 70px;
+  height: 90px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #aaa;
+  border-radius: 6px;
+
+  background: #333;
+
+  font-size: 12px;
+}
+
+.king-slot {
+  border-color: #d6b84b;
+}
+
+
+/* =========================
+   CENTER BATTLEFIELD
+   ========================= */
+
+#battlefield {
+  min-width: 0;
+
+  display: grid;
+
+  grid-template-rows:
+    auto auto 1fr auto auto auto;
+
+  gap: 18px;
+}
+
+
+/* =========================
+   HANDS
+   ========================= */
+
+.hand-zone {
+  text-align: center;
+}
+
+.hand-zone h2 {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.hand {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.card {
+  width: 70px;
+  height: 95px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid white;
+  border-radius: 6px;
+
+  background: #eee;
+  color: #111;
+
+  font-size: 12px;
+}
+
+.card-back {
+  background: #651010;
+  color: transparent;
+}
+
+
+/* =========================
+   ACTIVE DEFENSE
+   ========================= */
+
+.active-defense-zone {
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  gap: 10px;
+}
+
+.defense-card-slot {
+  width: 65px;
+  height: 85px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border: 1px dashed #888;
+  border-radius: 6px;
+
+  color: #aaa;
+
+  text-align: center;
+  font-size: 11px;
+}
+
+.wall-hp {
+  padding: 8px 10px;
+
+  border: 1px solid #666;
+  border-radius: 4px;
+
+  font-size: 12px;
+}
+
+
+/* =========================
+   SIEGE
+   ========================= */
+
+#siege-zone {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 50px;
+
+  align-items: center;
+}
+
+.siege-lane {
+  display: grid;
+
+  grid-template-rows:
+    auto 100px 100px;
+
+  justify-items: center;
+
+  gap: 12px;
+}
+
+.siege-lane h3 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.siege-slot {
+  width: 75px;
+  height: 100px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border: 2px dashed #555;
+  border-radius: 7px;
+
+  color: #777;
+
+  font-size: 11px;
+}
+
+
+/* =========================
+  DRAW / DEAD PILES
+   ========================= */
+
+#pile-zone {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0 20px;
+}
+
+.pile {
+  width: 65px;
+  height: 85px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border: 1px solid #aaa;
+  border-radius: 6px;
+
+  background: #292929;
+
+  font-size: 11px;
 }
